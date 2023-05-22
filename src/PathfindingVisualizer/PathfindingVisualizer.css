@@ -1,4 +1,9 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
 .grid{
     margin: auto;
-    margin-top: 75px;
+    margin-top: 50px;
 }

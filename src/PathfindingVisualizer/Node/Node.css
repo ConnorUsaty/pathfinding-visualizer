@@ -12,3 +12,11 @@
 .node-finish{
     background-color: red;
 }
+
+.node-visited{
+    background-color: yellow;
+}
+
+.node-correct-path{
+    background-color: blue;
+}
