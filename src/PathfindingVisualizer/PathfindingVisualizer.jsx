@@ -5,8 +5,8 @@ import "./PathfindingVisualizer.css";
 
 const START_NODE_ROW = 10;
 const START_NODE_COL = 5;
-const FINISH_NODE_ROW = 10;
-const FINISH_NODE_COL = 45;
+const FINISH_NODE_ROW = 14;
+const FINISH_NODE_COL = 35;
 
 export default class PathfindingVisualizer extends Component {
     constructor() {
@@ -39,7 +39,6 @@ export default class PathfindingVisualizer extends Component {
 
         // Get the valid neighbors of the current node
         const neighbors = this.getValidNeighbors(grid, curr);
-
         for (const neighbor of neighbors) {
             if (!neighbor.isVisited) {
                 if (await this.visualDFS(grid, neighbor, finish)) { // Finish node found from this path
@@ -60,21 +59,13 @@ export default class PathfindingVisualizer extends Component {
         const { row, col } = node;
 
         // Check the node above the current node
-        if (row > 0) {
-            neighbors.push(grid[row - 1][col]);
-        }
+        if (row > 0) {neighbors.push(grid[row - 1][col]);}
         // Check the node to the right of the current node
-        if (col < grid[0].length - 1) {
-            neighbors.push(grid[row][col + 1]);
-        }
+        if (col < grid[0].length - 1) {neighbors.push(grid[row][col + 1]);}
         // Check the node below the current node
-        if (row < grid.length - 1) {
-            neighbors.push(grid[row + 1][col]);
-        }
+        if (row < grid.length - 1) {neighbors.push(grid[row + 1][col]);}
         // Check the node to the left of the current node
-        if (col > 0) {
-            neighbors.push(grid[row][col - 1]);
-        }
+        if (col > 0) {neighbors.push(grid[row][col - 1]);}
 
         // Return all valid neighbors -> neighbors that are within the grid boundries
         return neighbors;
@@ -87,6 +78,45 @@ export default class PathfindingVisualizer extends Component {
         this.visualDFS(grid, startNode, finishNode);
     }
 
+    async visualBFS(grid, start, finish) {
+        const queue = [];
+        queue.push(start);
+        start.isVisited = true;
+
+        while (!!queue.length) {
+            await new Promise(resolve => setTimeout(resolve, 2));
+            var curr = queue.shift();
+            document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                'node node-visited'; // Visually document visit here so it matches when the node is popped off the queue
+            
+            if (curr === finish) {
+                while (curr.prev !== null) {
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                        'node node-correct-path';
+                    curr = curr.prev;
+                }
+                return;
+            }
+
+            const neighbors = this.getValidNeighbors(grid, curr);
+            for (const neighbor of neighbors) {
+                if (!neighbor.isVisited) {
+                    neighbor.prev = curr;
+                    neighbor.isVisited = true; // Set property here to avoid double pushing
+                    queue.push(neighbor);
+                }
+            }
+        }
+    }
+
+    visualizeBFS() {
+        const {grid} = this.state;
+        const startNode = grid[START_NODE_ROW][START_NODE_COL];
+        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+        this.visualBFS(grid, startNode, finishNode);
+    }
+
     render() {
         const {grid} = this.state;
 
@@ -94,6 +124,10 @@ export default class PathfindingVisualizer extends Component {
             <>
                 <button onClick={() => this.visualizeDFS()}>
                     Visualize DFS Algorithm
+                </button>
+                
+                <button onClick={() => this.visualizeBFS()}>
+                    Visualize BFS Algorithm
                 </button>
 
                 <div className="grid">
@@ -140,5 +174,6 @@ const createNode = (col, row) => {
         isStart: row === START_NODE_ROW && col === START_NODE_COL,
         isFinish: row === FINISH_NODE_ROW && col === FINISH_NODE_COL,
         isVisited: false,
+        prev: null,
     };
 };
