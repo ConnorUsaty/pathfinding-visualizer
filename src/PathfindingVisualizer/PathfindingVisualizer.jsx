@@ -21,9 +21,40 @@ export default class PathfindingVisualizer extends Component {
         this.setState({grid});
     }
 
+    clearBoard() {
+        const {grid} = this.state;
+        const startNode = grid[START_NODE_ROW][START_NODE_COL];
+        // Prevents the user from clearing the board while an algorithm is in progress
+        if (document.getElementById(`node-${startNode.row}-${startNode.col}`).className !== 'node node-visited') {
+            this.clearBoardHelper(grid, startNode);
+            return true;
+        }
+        return false;
+    }
+
+    clearBoardHelper(grid, curr) {
+        curr.isVisited = false;
+        curr.prev = null;
+        const extraClassName = curr.isFinish
+            ? 'node-finish'
+            : curr.isStart
+            ? 'node-start'
+            : '';
+
+        document.getElementById(`node-${curr.row}-${curr.col}`).className =
+            `node ${extraClassName}`;
+        
+        const neighbors = this.getValidNeighbors(grid, curr);
+        for (const neighbor of neighbors) {
+            if (neighbor.isVisited) {
+                this.clearBoardHelper(grid, neighbor);
+            }
+        }
+    }
+
     async visualDFS(grid, curr, finish) {
-        // Delay each step of the algorithm by 10ms
-        await new Promise(resolve => setTimeout(resolve, 10));
+        // Delay each step of the algorithm by 7ms
+        await new Promise(resolve => setTimeout(resolve, 7));
 
         // Document the current node as visited & show it visually
         curr.isVisited = true;
@@ -72,6 +103,8 @@ export default class PathfindingVisualizer extends Component {
     }
 
     visualizeDFS() {
+        if (!this.clearBoard()) return; // If clear board failed, then an algorithm is already in progress
+
         const {grid} = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
@@ -90,7 +123,7 @@ export default class PathfindingVisualizer extends Component {
                 'node node-visited'; // Visually document visit here so it matches when the node is popped off the queue
             
             if (curr === finish) {
-                while (curr.prev !== null) {
+                while (curr !== null) {
                     await new Promise(resolve => setTimeout(resolve, 20));
                     document.getElementById(`node-${curr.row}-${curr.col}`).className =
                         'node node-correct-path';
@@ -111,6 +144,8 @@ export default class PathfindingVisualizer extends Component {
     }
 
     visualizeBFS() {
+        if (!this.clearBoard()) return; // If clear board failed, then an algorithm is already in progress
+
         const {grid} = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
@@ -130,6 +165,10 @@ export default class PathfindingVisualizer extends Component {
                     Visualize BFS Algorithm
                 </button>
 
+                <button onClick={() => this.clearBoard()}>
+                    Reset Grid
+                </button>
+
                 <div className="grid">
                     {grid.map((row, rowIdx) => {
                         return (
@@ -139,10 +178,10 @@ export default class PathfindingVisualizer extends Component {
                                     return (
                                         <Node
                                             key={nodeIdx}
+                                            row={row}
                                             col={col}
-                                            isFinish={isFinish}
                                             isStart={isStart}
-                                            row={row}>
+                                            isFinish={isFinish}>
                                         </Node>
                                     );
                                 })}
@@ -169,8 +208,8 @@ const getInitialGrid = () => {
 
 const createNode = (col, row) => {
     return {
-        col,
         row,
+        col,
         isStart: row === START_NODE_ROW && col === START_NODE_COL,
         isFinish: row === FINISH_NODE_ROW && col === FINISH_NODE_COL,
         isVisited: false,
