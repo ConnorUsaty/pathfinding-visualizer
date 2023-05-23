@@ -26,3 +26,7 @@
 .node-correct-path{
     background-color: blue;
 }
+
+.node-wall{
+    background-color: black;
+}
