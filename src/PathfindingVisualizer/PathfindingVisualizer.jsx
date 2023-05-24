@@ -14,6 +14,7 @@ export default class PathfindingVisualizer extends Component {
         this.state = {
             grid: [],
             mouseIsPressed: false,
+            algorithm: "DFS",
         };
     }
 
@@ -24,42 +25,44 @@ export default class PathfindingVisualizer extends Component {
 
     handleMouseDown(row, col) {
         const {grid} = this.state;
-        this.toggleWall(grid, row, col);
         this.setState({mouseIsPressed: true});
+        this.toggleWall(grid, row, col);
     }
-    
+
     handleMouseEnter(row, col) {
         if (!this.state.mouseIsPressed) return;
         const {grid} = this.state;
         this.toggleWall(grid, row, col);
     }
-    
+
     handleMouseUp() {
         this.setState({mouseIsPressed: false});
     }
 
     toggleWall(grid, row, col) {
+        if (document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className === 'node node-visited') return;
+
         const node = grid[row][col];
-        if (!node.isStart && !node.isFinish) {
+        if (!node.isStart && !node.isFinish && !node.isVisited) {
             node.isWall = !node.isWall;
             document.getElementById(`node-${row}-${col}`).className =
                 `node ${node.isWall ? 'node-wall' : ''}`;
         }
     }
 
-    clearBoard() {
+    clearPath() {
         const {grid} = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
 
-        // Prevents the user from clearing the board while an algorithm is in progress
+        // Prevents the user from clearing path while an algorithm is in progress
         if (document.getElementById(`node-${startNode.row}-${startNode.col}`).className !== 'node node-visited') {
-            this.clearBoardHelper(grid);
+            this.clearPathHelper(grid);
             return true;
         }
         return false;
     }
 
-    clearBoardHelper(grid) {
+    clearPathHelper(grid) {
         for (const row of grid) {
             for (const node of row) {
                 document.getElementById(`node-${node.row}-${node.col}`).className =
@@ -68,6 +71,12 @@ export default class PathfindingVisualizer extends Component {
                 node.prev = null;
             }
         }
+    }
+
+    clearAll() {
+        if (!this.clearPath()) {return;} // If clearPath failed, then an algorithm is already in progress
+        const newGrid = clearWalls(this.state.grid);
+        this.setState({grid: newGrid});
     }
 
     async visualDFS(grid, curr, finish) {
@@ -124,7 +133,6 @@ export default class PathfindingVisualizer extends Component {
     }
 
     visualizeDFS() {
-        if (!this.clearBoard()) return; // If clear board failed, then an algorithm is already in progress
         const {grid} = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
@@ -136,7 +144,7 @@ export default class PathfindingVisualizer extends Component {
         queue.push(start);
         start.isVisited = true;
 
-        while (!!queue.length) {
+        while (queue.length) {
             await new Promise(resolve => setTimeout(resolve, 2));
             let curr = queue.shift();
             document.getElementById(`node-${curr.row}-${curr.col}`).className =
@@ -166,35 +174,50 @@ export default class PathfindingVisualizer extends Component {
     }
 
     visualizeBFS() {
-        if (!this.clearBoard()) {return;} // If clear board failed, then an algorithm is already in progress
         const {grid} = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
         this.visualBFS(grid, startNode, finishNode);
     }
 
-    clearGrid() {
-        if (!this.clearBoard()) {return;} // If clear board failed, then an algorithm is already in progress
-        const newGrid = clearWalls(this.state.grid);
-        this.setState({grid: newGrid});
+    visualizeAlgorithm() {
+        if (!this.clearPath()) {return;} // If clearPath failed, then an algorithm is already in progress
+
+        const {algorithm} = this.state;
+        if (algorithm === "DFS") {
+            this.visualizeDFS();
+        } else if (algorithm === "BFS") {
+            this.visualizeBFS();
+        }
     }
 
+    handleAlgorithmChange() {
+        this.setState({algorithm: document.getElementById("algorithm").value});
+    }
 
     render() {
         const { grid } = this.state;
+        const { algorithm } = this.state;
 
         return (
             <>
-                <button onClick={() => this.visualizeDFS()}>
-                    Visualize DFS Algorithm
-                </button>
-                
-                <button onClick={() => this.visualizeBFS()}>
-                    Visualize BFS Algorithm
+                <h1>Pathfinding Visualizer</h1>
+
+                <select id="algorithm" onChange={() => this.handleAlgorithmChange()}>
+                    <option value="DFS">Depth-First Search</option>
+                    <option value="BFS">Breadth-First Search</option>
+                </select>
+
+                <button onClick={() => this.visualizeAlgorithm()}>
+                    Visualize {algorithm}
                 </button>
 
-                <button onClick={() => this.clearGrid()}>
-                    Reset Grid
+                <button onClick={() => this.clearPath()}>
+                    Clear Path
+                </button>
+
+                <button onClick={() => this.clearAll()}>
+                    Clear All
                 </button>
 
                 <div className="grid">
@@ -225,6 +248,7 @@ export default class PathfindingVisualizer extends Component {
         );
     }
 }
+
 
 const getInitialGrid = () => {
     const grid = [];

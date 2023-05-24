@@ -6,5 +6,10 @@
 
 .grid{
     margin: auto;
-    margin-top: 50px;
+    margin-top: 40px;
+}
+
+button{
+    margin-top: 10px;
+    margin-left: 15px;
 }
