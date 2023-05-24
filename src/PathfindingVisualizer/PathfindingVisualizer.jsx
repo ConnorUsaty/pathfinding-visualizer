@@ -15,6 +15,7 @@ export default class PathfindingVisualizer extends Component {
             grid: [],
             mouseIsPressed: false,
             algorithm: "DFS",
+            algorithmInfo: "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.",
         };
     }
 
@@ -183,29 +184,48 @@ export default class PathfindingVisualizer extends Component {
     visualizeAlgorithm() {
         if (!this.clearPath()) {return;} // If clearPath failed, then an algorithm is already in progress
 
-        const {algorithm} = this.state;
+        const { algorithm } = this.state;
         if (algorithm === "DFS") {
             this.visualizeDFS();
         } else if (algorithm === "BFS") {
+            this.visualizeBFS();
+        } else if (algorithm === "Djikstra") {
             this.visualizeBFS();
         }
     }
 
     handleAlgorithmChange() {
-        this.setState({algorithm: document.getElementById("algorithm").value});
+        const newAlgorithm = document.getElementById("algorithm").value;
+        this.setState({algorithm: newAlgorithm});
+        this.setState({algorithmInfo: this.configAlgorithmInfo(newAlgorithm)});
+    }
+
+    configAlgorithmInfo(algorithm) {
+        let algorithmInfo = "";
+
+        if (algorithm === "DFS") {
+            algorithmInfo = "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.";
+        } else if (algorithm === "BFS") {
+            algorithmInfo = "Breadth-first search (BFS) is an unweighted algorithm and DOES guarentee the shortest path.";
+        } else if (algorithm === "Djikstra") {
+            algorithmInfo = "Djikstra's algorithm is a weighted algorithm and DOES guarentee the shortest path.";
+        }
+        return algorithmInfo;
     }
 
     render() {
         const { grid } = this.state;
         const { algorithm } = this.state;
+        const { algorithmInfo } = this.state;
 
         return (
             <>
-                <h1>Pathfinding Visualizer</h1>
+                <h1>Interactive Pathfinding Visualizer</h1>
 
                 <select id="algorithm" onChange={() => this.handleAlgorithmChange()}>
                     <option value="DFS">Depth-First Search</option>
                     <option value="BFS">Breadth-First Search</option>
+                    <option value="Djikstra">Djikstra's Algorithm</option>
                 </select>
 
                 <button onClick={() => this.visualizeAlgorithm()}>
@@ -219,6 +239,8 @@ export default class PathfindingVisualizer extends Component {
                 <button onClick={() => this.clearAll()}>
                     Clear All
                 </button>
+
+                <div id="algorithm-info">{algorithmInfo}</div>
 
                 <div className="grid">
                     {grid.map((row, rowIdx) => {
@@ -270,6 +292,7 @@ const createNode = (col, row) => {
         isFinish: row === FINISH_NODE_ROW && col === FINISH_NODE_COL,
         isVisited: false,
         isWall: false,
+        distance: Infinity,
         prev: null,
     };
 };
