@@ -14,6 +14,8 @@ export default class PathfindingVisualizer extends Component {
         this.state = {
             grid: [],
             mouseIsPressed: false,
+            movingStart: false,
+            movingFinish: false,
             algorithm: "DFS",
             algorithmInfo: "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.",
             delay: 2,
@@ -26,24 +28,75 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleMouseDown(row, col) {
-        const {grid} = this.state;
+        if (this.algorithmInProgess()) return this.handleMouseUp();
+
+        const { grid } = this.state;
         this.setState({mouseIsPressed: true});
-        this.toggleWall(grid, row, col);
+
+        if (grid[row][col].isStart) {
+            this.setState({movingStart: true});
+        } else if (grid[row][col].isFinish) {
+            this.setState({movingFinish: true});
+        } else {
+            this.toggleWall(grid, row, col);
+        }
     }
 
     handleMouseEnter(row, col) {
-        if (!this.state.mouseIsPressed) return;
-        const {grid} = this.state;
-        this.toggleWall(grid, row, col);
+        if (!this.state.mouseIsPressed || this.algorithmInProgess()) return this.handleMouseUp();
+        
+        const { grid } = this.state;
+
+        if (this.state.movingStart && !grid[row][col].isFinish) {
+            this.moveStart(grid, row, col);
+        } else if (this.state.movingFinish && !grid[row][col].isStart) {
+            this.moveFinish(grid, row, col);
+        } else {
+            this.toggleWall(grid, row, col);
+        }
     }
 
     handleMouseUp() {
-        this.setState({mouseIsPressed: false});
+        this.setState({mouseIsPressed: false, movingStart: false, movingFinish: false});
+    }
+
+    algorithmInProgess() {
+        if (document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className === 'node node-visited') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    moveStart(grid, row, col) {
+        const prevStartNode = grid[START_NODE_ROW][START_NODE_COL];
+        START_NODE_ROW = row;
+        START_NODE_COL = col;
+
+        prevStartNode.isStart = false;
+        grid[START_NODE_ROW][START_NODE_COL].isStart = true;
+
+        document.getElementById(`node-${prevStartNode.row}-${prevStartNode.col}`).className =
+            'node';
+        document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className =
+            'node node-start';
+    }
+
+    moveFinish(grid, row, col) {
+        const prevFinishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+        FINISH_NODE_ROW = row;
+        FINISH_NODE_COL = col;
+
+        prevFinishNode.isFinish = false;
+        grid[FINISH_NODE_ROW][FINISH_NODE_COL].isFinish = true;
+
+        document.getElementById(`node-${prevFinishNode.row}-${prevFinishNode.col}`).className =
+            'node';
+        document.getElementById(`node-${FINISH_NODE_ROW}-${FINISH_NODE_COL}`).className =
+            'node node-finish';
     }
 
     toggleWall(grid, row, col) {
-        if (document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className === 'node node-visited') return;
-
         const node = grid[row][col];
         if (!node.isStart && !node.isFinish && !node.isVisited) {
             node.isWall = !node.isWall;
@@ -53,11 +106,10 @@ export default class PathfindingVisualizer extends Component {
     }
 
     clearPath() {
-        const {grid} = this.state;
-        const startNode = grid[START_NODE_ROW][START_NODE_COL];
+        const { grid } = this.state;
 
         // Prevents the user from clearing path while an algorithm is in progress
-        if (document.getElementById(`node-${startNode.row}-${startNode.col}`).className !== 'node node-visited') {
+        if (!this.algorithmInProgess()) {
             this.clearPathHelper(grid);
             return true;
         }
@@ -70,6 +122,7 @@ export default class PathfindingVisualizer extends Component {
                 document.getElementById(`node-${node.row}-${node.col}`).className =
                     `node ${node.isStart ? 'node-start' : node.isFinish ? 'node-finish' : node.isWall ? 'node-wall' : ''}`;
                 node.isVisited = false;
+                node.distance = Infinity;
                 node.prev = null;
             }
         }
@@ -138,8 +191,6 @@ export default class PathfindingVisualizer extends Component {
         const queue = [];
         queue.push(start);
         start.isVisited = true;
-        console.log(delay);
-        console.log(this.state.delay);
 
         while (queue.length) {
             await new Promise(resolve => setTimeout(resolve, delay));
@@ -216,13 +267,13 @@ export default class PathfindingVisualizer extends Component {
         let delay = 0;
 
         if (speed === "VerySlow") {
-            delay = 28;
+            delay = 32;
         } else if (speed === "Slow") {
-            delay = 21;
+            delay = 24;
         } else if (speed === "Medium") {
-            delay = 15;
+            delay = 17;
         } else if (speed === "Fast") {
-            delay = 9;
+            delay = 10;
         } else if (speed === "VeryFast") {
             delay = 2;
         }
@@ -282,7 +333,7 @@ export default class PathfindingVisualizer extends Component {
                                             isWall={isWall}
                                             onMouseDown={(row, col) => this.handleMouseDown(row, col)}
                                             onMouseEnter={(row, col) => this.handleMouseEnter(row, col)}
-                                            onMouseUp={() => this.handleMouseUp()} >
+                                            onMouseUp={() => this.handleMouseUp()}>
                                         </Node>
                                     );
                                 })}
@@ -301,7 +352,7 @@ const getInitialGrid = () => {
     for (let row = 0; row < 20; row++) {
         const currentRow = [];
         for (let col = 0; col < 50; col++) {
-        currentRow.push(createNode(col, row));
+            currentRow.push(createNode(col, row));
         }
         grid.push(currentRow);
     }
