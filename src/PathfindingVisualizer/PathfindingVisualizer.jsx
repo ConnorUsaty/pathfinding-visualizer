@@ -16,6 +16,7 @@ export default class PathfindingVisualizer extends Component {
             mouseIsPressed: false,
             algorithm: "DFS",
             algorithmInfo: "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.",
+            delay: 2,
         };
     }
 
@@ -75,47 +76,11 @@ export default class PathfindingVisualizer extends Component {
     }
 
     clearAll() {
-        if (!this.clearPath()) {return;} // If clearPath failed, then an algorithm is already in progress
+        if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
         const newGrid = clearWalls(this.state.grid);
         this.setState({grid: newGrid});
     }
 
-    async visualDFS(grid, curr, finish) {
-        // Delay each step of the algorithm by 7ms
-        await new Promise(resolve => setTimeout(resolve, 7));
-
-        // Document the current node as visited & show it visually
-        curr.isVisited = true;
-        document.getElementById(`node-${curr.row}-${curr.col}`).className =
-            'node node-visited';
-
-        // If the current node is the finish node, then we can stop the algorithm
-        if (curr === finish) {
-            document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                'node node-correct-path';
-            return true;
-        }
-
-        // Get the valid neighbors of the current node
-        const neighbors = this.getValidNeighbors(grid, curr);
-        for (const neighbor of neighbors) {
-            if (!neighbor.isVisited) {
-                if (await this.visualDFS(grid, neighbor, finish)) { // Finish node found from this path
-                    // Every 10ms, show the next node in the correct path
-                    await new Promise(resolve => setTimeout(resolve, 10));
-                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                        'node node-correct-path';
-                    return true;
-                }
-            }
-        }
-        if (curr === grid[START_NODE_ROW][START_NODE_COL]) { // Algorithm finished without finding the finish node
-            document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className =
-                'node node-start';
-        }
-        return false;
-    }
-    
     getValidNeighbors(grid, node) {
         const neighbors = [];
         const { row, col } = node;
@@ -133,20 +98,51 @@ export default class PathfindingVisualizer extends Component {
         return neighbors.filter(neighbor => !neighbor.isWall);
     }
 
-    visualizeDFS() {
-        const {grid} = this.state;
-        const startNode = grid[START_NODE_ROW][START_NODE_COL];
-        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-        this.visualDFS(grid, startNode, finishNode)
-    }
+    async visualDFS(grid, curr, finish, delay) {
+        // Delay each step of the algorithm by chosen delay
+        await new Promise(resolve => setTimeout(resolve, delay));
 
-    async visualBFS(grid, start, finish) {
+        // Document the current node as visited & show it visually
+        curr.isVisited = true;
+        document.getElementById(`node-${curr.row}-${curr.col}`).className =
+            'node node-visited';
+
+        // If the current node is the finish node, then we can stop the algorithm
+        if (curr === finish) {
+            document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                'node node-correct-path';
+            return true;
+        }
+
+        // Get the valid neighbors of the current node
+        const neighbors = this.getValidNeighbors(grid, curr);
+        for (const neighbor of neighbors) {
+            if (!neighbor.isVisited) {
+                if (await this.visualDFS(grid, neighbor, finish, delay)) { // Finish node found from this path
+                    // Every 20ms, show the next node in the correct path
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                        'node node-correct-path';
+                    return true;
+                }
+            }
+        }
+        if (curr === grid[START_NODE_ROW][START_NODE_COL]) { // Algorithm finished without finding the finish node
+            document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className =
+                'node node-start';
+        }
+        return false;
+    }
+    
+    async visualBFS(grid, start, finish, delay) {
         const queue = [];
         queue.push(start);
         start.isVisited = true;
+        console.log(delay);
+        console.log(this.state.delay);
 
         while (queue.length) {
-            await new Promise(resolve => setTimeout(resolve, 2));
+            await new Promise(resolve => setTimeout(resolve, delay));
             let curr = queue.shift();
             document.getElementById(`node-${curr.row}-${curr.col}`).className =
                 'node node-visited'; // Visually document visit here so it matches when the node is popped off the queue
@@ -174,23 +170,21 @@ export default class PathfindingVisualizer extends Component {
             'node node-start';
     }
 
-    visualizeBFS() {
-        const {grid} = this.state;
-        const startNode = grid[START_NODE_ROW][START_NODE_COL];
-        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-        this.visualBFS(grid, startNode, finishNode);
-    }
-
     visualizeAlgorithm() {
-        if (!this.clearPath()) {return;} // If clearPath failed, then an algorithm is already in progress
+        if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
 
         const { algorithm } = this.state;
+        const { grid } = this.state;
+        const startNode = grid[START_NODE_ROW][START_NODE_COL];
+        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+        const { delay } = this.state;
+
         if (algorithm === "DFS") {
-            this.visualizeDFS();
+            this.visualDFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "BFS") {
-            this.visualizeBFS();
+            this.visualBFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "Djikstra") {
-            this.visualizeBFS();
+            this.visualBFS(grid, startNode, finishNode, delay);
         }
     }
 
@@ -213,6 +207,28 @@ export default class PathfindingVisualizer extends Component {
         return algorithmInfo;
     }
 
+    handleSpeedChange() {
+        const newSpeed = document.getElementById("speed").value;
+        this.setState({delay: this.configDelay(newSpeed)});
+    }
+
+    configDelay(speed) {
+        let delay = 0;
+
+        if (speed === "VerySlow") {
+            delay = 28;
+        } else if (speed === "Slow") {
+            delay = 21;
+        } else if (speed === "Medium") {
+            delay = 15;
+        } else if (speed === "Fast") {
+            delay = 9;
+        } else if (speed === "VeryFast") {
+            delay = 2;
+        }
+        return delay;
+    }
+
     render() {
         const { grid } = this.state;
         const { algorithm } = this.state;
@@ -231,6 +247,14 @@ export default class PathfindingVisualizer extends Component {
                 <button onClick={() => this.visualizeAlgorithm()}>
                     Visualize {algorithm}
                 </button>
+
+                <select id="speed" onChange={() => this.handleSpeedChange()}>
+                    <option value="VeryFast">Very Fast</option>
+                    <option value="Fast">Fast</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Slow">Slow</option>
+                    <option value="VerySlow">Very Slow</option>
+                </select>
 
                 <button onClick={() => this.clearPath()}>
                     Clear Path
