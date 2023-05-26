@@ -15,11 +15,37 @@
 }
 
 .node-start {
-    background-color: green;
+    width: 25px;
+    height: 25px;
+    position: relative;
+}
+
+.node-start:before {
+    position: absolute;
+    font-family: "FontAwesome";
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    content: "\f04b";
 }
 
 .node-finish {
-    background-color: red;
+    width: 25px;
+    height: 25px;
+    position: relative;
+}
+
+.node-finish:before {
+    position: absolute;
+    font-family: "FontAwesome";
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    content: "\f11e";
+}
+
+.node-visited-na {
+    background-color: rgba(0, 190, 218, 0.75);
 }
 
 .node-visited {
@@ -57,6 +83,10 @@
 
 .node-wall {
     background-color: rgb(12, 53, 71);
+}
+
+.node-correct-path-na {
+    background-color: rgb(255, 254, 106);
 }
 
 .node-correct-path {

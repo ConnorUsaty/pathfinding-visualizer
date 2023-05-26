@@ -16,6 +16,8 @@ export default class PathfindingVisualizer extends Component {
             mouseIsPressed: false,
             movingStart: false,
             movingFinish: false,
+            algorithmInProgess: false,
+            algorithmVisualized: false,
             algorithm: "DFS",
             algorithmInfo: "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.",
             delay: 2,
@@ -28,7 +30,7 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleMouseDown(row, col) {
-        if (this.algorithmInProgess()) return this.handleMouseUp();
+        if (this.state.algorithmInProgess) return this.handleMouseUp();
 
         const { grid } = this.state;
         this.setState({mouseIsPressed: true});
@@ -37,35 +39,30 @@ export default class PathfindingVisualizer extends Component {
             this.setState({movingStart: true});
         } else if (grid[row][col].isFinish) {
             this.setState({movingFinish: true});
-        } else {
+        } else if (!grid[row][col].isVisited) {
             this.toggleWall(grid, row, col);
         }
     }
 
     handleMouseEnter(row, col) {
-        if (!this.state.mouseIsPressed || this.algorithmInProgess()) return this.handleMouseUp();
+        if (!this.state.mouseIsPressed || this.state.algorithmInProgess) return this.handleMouseUp();
         
         const { grid } = this.state;
+        const node = grid[row][col];
 
-        if (this.state.movingStart && !grid[row][col].isFinish) {
+        if (this.state.movingStart && !node.isFinish && !node.isWall) {
             this.moveStart(grid, row, col);
-        } else if (this.state.movingFinish && !grid[row][col].isStart) {
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation();
+        } else if (this.state.movingFinish && !node.isStart && !node.isWall) {
             this.moveFinish(grid, row, col);
-        } else {
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation();
+        } else if (!node.isStart && !node.isFinish && !node.isVisited && !this.state.movingStart && !this.state.movingFinish) {
             this.toggleWall(grid, row, col);
         }
     }
 
     handleMouseUp() {
         this.setState({mouseIsPressed: false, movingStart: false, movingFinish: false});
-    }
-
-    algorithmInProgess() {
-        if (document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className === 'node node-visited') {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     moveStart(grid, row, col) {
@@ -98,22 +95,19 @@ export default class PathfindingVisualizer extends Component {
 
     toggleWall(grid, row, col) {
         const node = grid[row][col];
-        if (!node.isStart && !node.isFinish && !node.isVisited) {
-            node.isWall = !node.isWall;
-            document.getElementById(`node-${row}-${col}`).className =
-                `node ${node.isWall ? 'node-wall' : ''}`;
-        }
+        node.isWall = !node.isWall;
+        document.getElementById(`node-${row}-${col}`).className =
+            `node ${node.isWall ? 'node-wall' : ''}`;
     }
 
     clearPath() {
-        const { grid } = this.state;
-
         // Prevents the user from clearing path while an algorithm is in progress
-        if (!this.algorithmInProgess()) {
-            this.clearPathHelper(grid);
-            return true;
-        }
-        return false;
+        if (this.state.algorithmInProgess) return false;
+        
+        const { grid } = this.state;
+        this.clearPathHelper(grid);
+        this.setState({algorithmVisualized: false});
+        return true;
     }
 
     clearPathHelper(grid) {
@@ -131,7 +125,7 @@ export default class PathfindingVisualizer extends Component {
     clearAll() {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
         const newGrid = clearWalls(this.state.grid);
-        this.setState({grid: newGrid});
+        this.setState({grid: newGrid, algorithmVisualized: false});
     }
 
     getValidNeighbors(grid, node) {
@@ -146,7 +140,6 @@ export default class PathfindingVisualizer extends Component {
         if (row < grid.length - 1) {neighbors.push(grid[row + 1][col]);}
         // Check the node to the left of the current node
         if (col > 0) {neighbors.push(grid[row][col - 1]);}
-
         // Return all valid neighbors -> neighbors that are within the grid boundries and are not walls
         return neighbors.filter(neighbor => !neighbor.isWall);
     }
@@ -173,16 +166,39 @@ export default class PathfindingVisualizer extends Component {
             if (!neighbor.isVisited) {
                 if (await this.visualDFS(grid, neighbor, finish, delay)) { // Finish node found from this path
                     // Every 20ms, show the next node in the correct path
-                    await new Promise(resolve => setTimeout(resolve, 20));
+                    await new Promise(resolve => setTimeout(resolve, delay*1.2));
                     document.getElementById(`node-${curr.row}-${curr.col}`).className =
                         'node node-correct-path';
                     return true;
                 }
             }
         }
-        if (curr === grid[START_NODE_ROW][START_NODE_COL]) { // Algorithm finished without finding the finish node
-            document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className =
-                'node node-start';
+        return false;
+    }
+
+    visualDFS_NA(grid, curr, finish) {
+        // Document the current node as visited & show it visually
+        curr.isVisited = true;
+        document.getElementById(`node-${curr.row}-${curr.col}`).className =
+            'node node-visited-na';
+
+        // If the current node is the finish node, then we can stop the algorithm
+        if (curr === finish) {
+            document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                'node node-correct-path-na';
+            return true;
+        }
+
+        // Get the valid neighbors of the current node
+        const neighbors = this.getValidNeighbors(grid, curr);
+        for (const neighbor of neighbors) {
+            if (!neighbor.isVisited) {
+                if (this.visualDFS_NA(grid, neighbor, finish)) { // Finish node found from this path
+                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                        'node node-correct-path-na';
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -200,7 +216,7 @@ export default class PathfindingVisualizer extends Component {
             
             if (curr === finish) {
                 while (curr !== null) {
-                    await new Promise(resolve => setTimeout(resolve, 20));
+                    await new Promise(resolve => setTimeout(resolve, delay*2));
                     document.getElementById(`node-${curr.row}-${curr.col}`).className =
                         'node node-correct-path';
                     curr = curr.prev;
@@ -217,12 +233,41 @@ export default class PathfindingVisualizer extends Component {
                 }
             }
         }
-        document.getElementById(`node-${START_NODE_ROW}-${START_NODE_COL}`).className =
-            'node node-start';
     }
 
-    visualizeAlgorithm() {
+    visualBFS_NA(grid, start, finish) {
+        const queue = [];
+        queue.push(start);
+        start.isVisited = true;
+
+        while (queue.length) {
+            let curr = queue.shift();
+            document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                'node node-visited-na'; // Visually document visit here so it matches when the node is popped off the queue
+            
+            if (curr === finish) {
+                while (curr !== null) {
+                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
+                        'node node-correct-path-na';
+                    curr = curr.prev;
+                }
+                return; // Algorithm visualization complete
+            }
+
+            const neighbors = this.getValidNeighbors(grid, curr);
+            for (const neighbor of neighbors) {
+                if (!neighbor.isVisited) {
+                    neighbor.prev = curr;
+                    neighbor.isVisited = true; // Set property here to avoid double pushing
+                    queue.push(neighbor);
+                }
+            }
+        }
+    }
+
+    async visualizeAlgorithm() {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
+        this.setState({algorithmInProgess: true, algorithmVisualized: false});
 
         const { algorithm } = this.state;
         const { grid } = this.state;
@@ -231,13 +276,33 @@ export default class PathfindingVisualizer extends Component {
         const { delay } = this.state;
 
         if (algorithm === "DFS") {
-            this.visualDFS(grid, startNode, finishNode, delay);
+            await this.visualDFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "BFS") {
-            this.visualBFS(grid, startNode, finishNode, delay);
+            await this.visualBFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "Djikstra") {
-            this.visualBFS(grid, startNode, finishNode, delay);
+            await this.visualBFS(grid, startNode, finishNode, delay);
         }
+        this.setState({algorithmInProgess: false, algorithmVisualized: true});
     }
+
+    visualizeAlgorithmNoAnimation() {
+        if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
+
+        const { algorithm } = this.state;
+        const { grid } = this.state;
+        const startNode = grid[START_NODE_ROW][START_NODE_COL];
+        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+
+        if (algorithm === "DFS") {
+            this.visualDFS_NA(grid, startNode, finishNode);
+        } else if (algorithm === "BFS") {
+            this.visualBFS_NA(grid, startNode, finishNode);
+        } else if (algorithm === "Djikstra") {
+            this.visualBFS_NA(grid, startNode, finishNode);
+        }
+        this.setState({algorithmVisualized: true});
+    }
+
 
     handleAlgorithmChange() {
         const newAlgorithm = document.getElementById("algorithm").value;
@@ -284,6 +349,7 @@ export default class PathfindingVisualizer extends Component {
         const { grid } = this.state;
         const { algorithm } = this.state;
         const { algorithmInfo } = this.state;
+        const { algorithmVisualized } = this.state;
 
         return (
             <>
@@ -325,6 +391,7 @@ export default class PathfindingVisualizer extends Component {
                                     const {row, col, isFinish, isStart, isWall} = node;
                                     return (
                                         <Node
+                                            algorithmVisualized={algorithmVisualized}
                                             key={nodeIdx}
                                             row={row}
                                             col={col}
