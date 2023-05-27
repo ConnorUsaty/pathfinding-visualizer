@@ -1,3 +1,6 @@
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+
 *{
     margin: 0;
     padding: 0;
@@ -21,12 +24,15 @@
 }
 
 .node-start:before {
+    color: black;
     position: absolute;
     font-family: "FontAwesome";
+    font-size: 22px;
+    font-weight: bold;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    content: "\f04b";
+    content: "\f015";
 }
 
 .node-finish {
@@ -36,12 +42,15 @@
 }
 
 .node-finish:before {
+    color: black;
     position: absolute;
     font-family: "FontAwesome";
+    font-size: 25px;
+    font-weight: bold;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    content: "\f11e";
+    content: "\f3c5";
 }
 
 .node-visited-na {
@@ -82,7 +91,22 @@
 }
 
 .node-wall {
-    background-color: rgb(12, 53, 71);
+    opacity: 0.4;
+    width: 25px;
+    height: 25px;
+    position: relative;
+}
+
+.node-wall:before {
+    color: red;
+    position: absolute;
+    font-family: "FontAwesome";
+    font-size: 23px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    content: "\f05e";
 }
 
 .node-correct-path-na {

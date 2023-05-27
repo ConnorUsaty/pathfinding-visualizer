@@ -19,14 +19,13 @@ export default class PathfindingVisualizer extends Component {
             algorithmInProgess: false,
             algorithmVisualized: false,
             algorithm: "DFS",
-            algorithmInfo: "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.",
+            algorithmInfo: "",
             delay: 2,
         };
     }
 
     componentDidMount() {
-        const grid = getInitialGrid();
-        this.setState({grid});  
+        this.setState({grid: getInitialGrid(), algorithmInfo: this.configAlgorithmInfo(this.state.algorithm)});
     }
 
     handleMouseDown(row, col) {
@@ -103,6 +102,7 @@ export default class PathfindingVisualizer extends Component {
     clearPath() {
         // Prevents the user from clearing path while an algorithm is in progress
         if (this.state.algorithmInProgess) return false;
+        this.handleMouseUp();
         
         const { grid } = this.state;
         this.clearPathHelper(grid);
@@ -306,8 +306,8 @@ export default class PathfindingVisualizer extends Component {
 
     handleAlgorithmChange() {
         const newAlgorithm = document.getElementById("algorithm").value;
-        this.setState({algorithm: newAlgorithm});
-        this.setState({algorithmInfo: this.configAlgorithmInfo(newAlgorithm)});
+        this.setState({algorithm: newAlgorithm, algorithmInfo: this.configAlgorithmInfo(newAlgorithm)});
+        this.handleMouseUp();
     }
 
     configAlgorithmInfo(algorithm) {
@@ -326,6 +326,7 @@ export default class PathfindingVisualizer extends Component {
     handleSpeedChange() {
         const newSpeed = document.getElementById("speed").value;
         this.setState({delay: this.configDelay(newSpeed)});
+        this.handleMouseUp();
     }
 
     configDelay(speed) {
@@ -349,7 +350,6 @@ export default class PathfindingVisualizer extends Component {
         const { grid } = this.state;
         const { algorithm } = this.state;
         const { algorithmInfo } = this.state;
-        const { algorithmVisualized } = this.state;
 
         return (
             <>
@@ -391,7 +391,9 @@ export default class PathfindingVisualizer extends Component {
                                     const {row, col, isFinish, isStart, isWall} = node;
                                     return (
                                         <Node
-                                            algorithmVisualized={algorithmVisualized}
+                                            movingStart={this.state.movingStart}
+                                            movingFinish={this.state.movingFinish}
+                                            algorithmVisualized={this.state.algorithmVisualized}
                                             key={nodeIdx}
                                             row={row}
                                             col={col}
