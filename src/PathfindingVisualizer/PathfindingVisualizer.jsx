@@ -1,7 +1,11 @@
 import React, {Component} from "react";
+
 import Node from "./Node/Node";
-import { InstructionsModal } from "./Intructions/Instructions";
+import { InstructionsModal } from "./Instructions/Instructions";
 import { Legend } from "./Legend/Legend";
+
+import { visualDFS, visualDFS_NA } from "./Algorithms/Pathfinding/dfs";
+import { visualBFS, visualBFS_NA } from "./Algorithms/Pathfinding/bfs";
 
 import "./PathfindingVisualizer.css";
 
@@ -134,143 +138,6 @@ export default class PathfindingVisualizer extends Component {
         this.setState({grid: newGrid, algorithmVisualized: false});
     }
 
-    getValidNeighbors(grid, node) {
-        const neighbors = [];
-        const { row, col } = node;
-
-        // Check the node above the current node
-        if (row > 0) {neighbors.push(grid[row - 1][col]);}
-        // Check the node to the right of the current node
-        if (col < grid[0].length - 1) {neighbors.push(grid[row][col + 1]);}
-        // Check the node below the current node
-        if (row < grid.length - 1) {neighbors.push(grid[row + 1][col]);}
-        // Check the node to the left of the current node
-        if (col > 0) {neighbors.push(grid[row][col - 1]);}
-        // Return all valid neighbors -> neighbors that are within the grid boundries and are not walls
-        return neighbors.filter(neighbor => !neighbor.isWall);
-    }
-
-    async visualDFS(grid, curr, finish, delay) {
-        // Delay each step of the algorithm by chosen delay
-        await new Promise(resolve => setTimeout(resolve, delay));
-
-        // Document the current node as visited & show it visually
-        curr.isVisited = true;
-        document.getElementById(`node-${curr.row}-${curr.col}`).className =
-            'node node-visited';
-
-        // If the current node is the finish node, then we can stop the algorithm
-        if (curr === finish) {
-            document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                'node node-correct-path';
-            return true;
-        }
-
-        // Get the valid neighbors of the current node
-        const neighbors = this.getValidNeighbors(grid, curr);
-        for (const neighbor of neighbors) {
-            if (!neighbor.isVisited) {
-                if (await this.visualDFS(grid, neighbor, finish, delay)) { // Finish node found from this path
-                    // Every 20ms, show the next node in the correct path
-                    await new Promise(resolve => setTimeout(resolve, delay*1.2));
-                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                        'node node-correct-path';
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    visualDFS_NA(grid, curr, finish) {
-        // Document the current node as visited & show it visually
-        curr.isVisited = true;
-        document.getElementById(`node-${curr.row}-${curr.col}`).className =
-            'node node-visited-na';
-
-        // If the current node is the finish node, then we can stop the algorithm
-        if (curr === finish) {
-            document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                'node node-correct-path-na';
-            return true;
-        }
-
-        // Get the valid neighbors of the current node
-        const neighbors = this.getValidNeighbors(grid, curr);
-        for (const neighbor of neighbors) {
-            if (!neighbor.isVisited) {
-                if (this.visualDFS_NA(grid, neighbor, finish)) { // Finish node found from this path
-                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                        'node node-correct-path-na';
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    async visualBFS(grid, start, finish, delay) {
-        const queue = [];
-        queue.push(start);
-        start.isVisited = true;
-
-        while (queue.length) {
-            await new Promise(resolve => setTimeout(resolve, delay));
-            let curr = queue.shift();
-            document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                'node node-visited'; // Visually document visit here so it matches when the node is popped off the queue
-            
-            if (curr === finish) {
-                while (curr !== null) {
-                    await new Promise(resolve => setTimeout(resolve, delay*2));
-                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                        'node node-correct-path';
-                    curr = curr.prev;
-                }
-                return; // Algorithm visualization complete
-            }
-
-            const neighbors = this.getValidNeighbors(grid, curr);
-            for (const neighbor of neighbors) {
-                if (!neighbor.isVisited) {
-                    neighbor.prev = curr;
-                    neighbor.isVisited = true; // Set property here to avoid double pushing
-                    queue.push(neighbor);
-                }
-            }
-        }
-    }
-
-    visualBFS_NA(grid, start, finish) {
-        const queue = [];
-        queue.push(start);
-        start.isVisited = true;
-
-        while (queue.length) {
-            let curr = queue.shift();
-            document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                'node node-visited-na'; // Visually document visit here so it matches when the node is popped off the queue
-            
-            if (curr === finish) {
-                while (curr !== null) {
-                    document.getElementById(`node-${curr.row}-${curr.col}`).className =
-                        'node node-correct-path-na';
-                    curr = curr.prev;
-                }
-                return; // Algorithm visualization complete
-            }
-
-            const neighbors = this.getValidNeighbors(grid, curr);
-            for (const neighbor of neighbors) {
-                if (!neighbor.isVisited) {
-                    neighbor.prev = curr;
-                    neighbor.isVisited = true; // Set property here to avoid double pushing
-                    queue.push(neighbor);
-                }
-            }
-        }
-    }
-
     async visualizeAlgorithm(algorithm) {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
         this.setState({algorithmInProgress: true, algorithmVisualized: false});
@@ -281,11 +148,11 @@ export default class PathfindingVisualizer extends Component {
         const { delay } = this.state;
 
         if (algorithm === "DFS") {
-            await this.visualDFS(grid, startNode, finishNode, delay);
+            await visualDFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "BFS") {
-            await this.visualBFS(grid, startNode, finishNode, delay);
+            await visualBFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "Djikstra") {
-            await this.visualBFS(grid, startNode, finishNode, delay);
+            await visualBFS(grid, startNode, finishNode, delay);
         }
         this.setState({algorithmInProgress: false, algorithmVisualized: true});
     }
@@ -298,11 +165,11 @@ export default class PathfindingVisualizer extends Component {
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
 
         if (algorithm === "DFS") {
-            this.visualDFS_NA(grid, startNode, finishNode);
+            visualDFS_NA(grid, startNode, finishNode);
         } else if (algorithm === "BFS") {
-            this.visualBFS_NA(grid, startNode, finishNode);
+            visualBFS_NA(grid, startNode, finishNode);
         } else if (algorithm === "Djikstra") {
-            this.visualBFS_NA(grid, startNode, finishNode);
+            visualBFS_NA(grid, startNode, finishNode);
         }
         this.setState({algorithmVisualized: true});
     }
@@ -386,10 +253,9 @@ export default class PathfindingVisualizer extends Component {
                 </select>
 
                 <button onClick={() => this.visualizeAlgorithm(algorithm)} 
-                    disabled={algorithmInProgress || algorithm === "" || this.state.delay === -1}>
-                        Visualize {algorithm}
+                  disabled={algorithmInProgress || algorithm === "" || this.state.delay === -1}>
+                    Visualize {algorithm}
                 </button>
-
 
                 <button onClick={() => this.clearPath()} disabled={algorithmInProgress}>
                     Clear Path

@@ -6,25 +6,25 @@ export const Legend = () => {
         <div className="legend-row">
             <div className="legend-item">
                 <div className="node"><div className="node-start"></div></div>
-                <span>Start Node</span>
+                <span>Start</span>
             </div>
             <div className="legend-item">
                 <div className="node"><div className="node-finish"></div></div>
-                <span>End Node</span>
-            </div>
-            <div className="legend-item">
-                <div className="node"><div className="node-wall"></div></div>
-                <span>Wall Node</span>
+                <span>Finish</span>
             </div>
         </div>
         <div className="legend-row">
             <div className="legend-item">
+                <div className="node node-wall"></div>
+                <span>Wall</span>
+            </div>
+            <div className="legend-item">
                 <div className="node node-visited-na"></div>
-                <span>Visited Node</span>
+                <span>Visited</span>
             </div>
             <div className="legend-item">
                 <div className="node node-correct-path-na"></div>
-                <span>Correct Path Node</span>
+                <span>Correct Path</span>
             </div>
         </div>
       </div>
