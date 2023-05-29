@@ -16,7 +16,7 @@ export default class PathfindingVisualizer extends Component {
             mouseIsPressed: false,
             movingStart: false,
             movingFinish: false,
-            algorithmInProgess: false,
+            algorithmInProgress: false,
             algorithmVisualized: false,
             algorithm: "DFS",
             algorithmInfo: "",
@@ -29,7 +29,7 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleMouseDown(row, col) {
-        if (this.state.algorithmInProgess) return this.handleMouseUp();
+        if (this.state.algorithmInProgress) return this.handleMouseUp();
 
         const { grid } = this.state;
         this.setState({mouseIsPressed: true});
@@ -44,17 +44,17 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleMouseEnter(row, col) {
-        if (!this.state.mouseIsPressed || this.state.algorithmInProgess) return this.handleMouseUp();
+        if (!this.state.mouseIsPressed || this.state.algorithmInProgress) return this.handleMouseUp();
         
         const { grid } = this.state;
         const node = grid[row][col];
 
         if (this.state.movingStart && !node.isFinish && !node.isWall) {
             this.moveStart(grid, row, col);
-            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation();
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm);
         } else if (this.state.movingFinish && !node.isStart && !node.isWall) {
             this.moveFinish(grid, row, col);
-            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation();
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm);
         } else if (!node.isStart && !node.isFinish && !node.isVisited && !this.state.movingStart && !this.state.movingFinish) {
             this.toggleWall(grid, row, col);
         }
@@ -101,8 +101,7 @@ export default class PathfindingVisualizer extends Component {
 
     clearPath() {
         // Prevents the user from clearing path while an algorithm is in progress
-        if (this.state.algorithmInProgess) return false;
-        this.handleMouseUp();
+        if (this.state.algorithmInProgress) return false;
         
         const { grid } = this.state;
         this.clearPathHelper(grid);
@@ -265,11 +264,10 @@ export default class PathfindingVisualizer extends Component {
         }
     }
 
-    async visualizeAlgorithm() {
+    async visualizeAlgorithm(algorithm) {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
-        this.setState({algorithmInProgess: true, algorithmVisualized: false});
+        this.setState({algorithmInProgress: true, algorithmVisualized: false});
 
-        const { algorithm } = this.state;
         const { grid } = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
@@ -282,13 +280,12 @@ export default class PathfindingVisualizer extends Component {
         } else if (algorithm === "Djikstra") {
             await this.visualBFS(grid, startNode, finishNode, delay);
         }
-        this.setState({algorithmInProgess: false, algorithmVisualized: true});
+        this.setState({algorithmInProgress: false, algorithmVisualized: true});
     }
 
-    visualizeAlgorithmNoAnimation() {
+    visualizeAlgorithmNoAnimation(algorithm) {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
 
-        const { algorithm } = this.state;
         const { grid } = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
@@ -307,7 +304,7 @@ export default class PathfindingVisualizer extends Component {
     handleAlgorithmChange() {
         const newAlgorithm = document.getElementById("algorithm").value;
         this.setState({algorithm: newAlgorithm, algorithmInfo: this.configAlgorithmInfo(newAlgorithm)});
-        this.handleMouseUp();
+        if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(newAlgorithm);
     }
 
     configAlgorithmInfo(algorithm) {
@@ -326,7 +323,6 @@ export default class PathfindingVisualizer extends Component {
     handleSpeedChange() {
         const newSpeed = document.getElementById("speed").value;
         this.setState({delay: this.configDelay(newSpeed)});
-        this.handleMouseUp();
     }
 
     configDelay(speed) {
@@ -350,22 +346,23 @@ export default class PathfindingVisualizer extends Component {
         const { grid } = this.state;
         const { algorithm } = this.state;
         const { algorithmInfo } = this.state;
+        const { algorithmInProgress } = this.state;
 
         return (
             <>
                 <h1>Interactive Pathfinding Visualizer</h1>
-
-                <select id="algorithm" onChange={() => this.handleAlgorithmChange()}>
+                
+                <select id="algorithm" onChange={() => this.handleAlgorithmChange()} disabled={algorithmInProgress}>
                     <option value="DFS">Depth-First Search</option>
                     <option value="BFS">Breadth-First Search</option>
                     <option value="Djikstra">Djikstra's Algorithm</option>
                 </select>
 
-                <button onClick={() => this.visualizeAlgorithm()}>
+                <button onClick={() => this.visualizeAlgorithm(algorithm)} disabled={algorithmInProgress}>
                     Visualize {algorithm}
                 </button>
 
-                <select id="speed" onChange={() => this.handleSpeedChange()}>
+                <select id="speed" onChange={() => this.handleSpeedChange()} disabled={algorithmInProgress}>
                     <option value="VeryFast">Very Fast</option>
                     <option value="Fast">Fast</option>
                     <option value="Medium">Medium</option>
@@ -373,11 +370,11 @@ export default class PathfindingVisualizer extends Component {
                     <option value="VerySlow">Very Slow</option>
                 </select>
 
-                <button onClick={() => this.clearPath()}>
+                <button onClick={() => this.clearPath()} disabled={algorithmInProgress}>
                     Clear Path
                 </button>
 
-                <button onClick={() => this.clearAll()}>
+                <button onClick={() => this.clearAll()} disabled={algorithmInProgress}>
                     Clear All
                 </button>
 
