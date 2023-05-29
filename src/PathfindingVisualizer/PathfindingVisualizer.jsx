@@ -1,8 +1,10 @@
 import React, {Component} from "react";
 
-import Node from "./Node/Node";
 import { InstructionsModal } from "./Instructions/Instructions";
+import { Header } from "./Header/Header";
 import { Legend } from "./Legend/Legend";
+import Menu from "./Menu/Menu";
+import Node from "./Node/Node";
 
 import { visualDFS, visualDFS_NA } from "./Algorithms/Pathfinding/dfs";
 import { visualBFS, visualBFS_NA } from "./Algorithms/Pathfinding/bfs";
@@ -140,7 +142,7 @@ export default class PathfindingVisualizer extends Component {
 
     async visualizeAlgorithm(algorithm) {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
-        this.setState({algorithmInProgress: true, algorithmVisualized: false});
+        this.setState({algorithmInProgress: true});
 
         const { grid } = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
@@ -226,54 +228,27 @@ export default class PathfindingVisualizer extends Component {
 
         return (
             <>
-                <h1>Interactive Pathfinding Visualizer</h1>
-
-                <select id="algorithm" onChange={() => this.handleAlgorithmChange()} disabled={algorithmInProgress}>
-                    {algorithm === "" && 
-                    <option value="" disabled selected>
-                        Select an algorithm...
-                    </option>}
-
-                    <option value="DFS">Depth-First Search</option>
-                    <option value="BFS">Breadth-First Search</option>
-                    <option value="Djikstra">Djikstra's Algorithm</option>
-                </select>
-
-                <select id="speed" onChange={() => this.handleSpeedChange()} disabled={algorithmInProgress}>
-                    {this.state.delay === -1 && 
-                    <option value="" disabled selected>
-                        Select a speed...
-                    </option>}
-
-                    <option value="VeryFast">Very Fast</option>
-                    <option value="Fast">Fast</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Slow">Slow</option>
-                    <option value="VerySlow">Very Slow</option>
-                </select>
-
-                <button onClick={() => this.visualizeAlgorithm(algorithm)} 
-                  disabled={algorithmInProgress || algorithm === "" || this.state.delay === -1}>
-                    Visualize {algorithm}
-                </button>
-
-                <button onClick={() => this.clearPath()} disabled={algorithmInProgress}>
-                    Clear Path
-                </button>
-
-                <button onClick={() => this.clearAll()} disabled={algorithmInProgress}>
-                    Clear All
-                </button>
-
-                <button onClick={() => this.toggleInstructionsModal()}>How to use</button>
-                    <InstructionsModal
+                <InstructionsModal
                     isOpen={this.state.showInstructions}
-                    onClose={() => this.toggleInstructionsModal()}
-                    />
+                    onClose={() => this.toggleInstructionsModal()}>
+                </InstructionsModal>
 
+                <Header />
                 <Legend />
 
-                <div id="algorithm-info">{algorithmInfo}</div>
+                <Menu
+                    algorithm={algorithm}
+                    onAlgorithmChange={() => this.handleAlgorithmChange()}
+                    algorithmInProgress={algorithmInProgress}
+                    delay={this.state.delay}
+                    onSpeedChange={() => this.handleSpeedChange()}
+                    visualizeAlgorithm={(algorithm) => this.visualizeAlgorithm(algorithm)}
+                    clearPath={() => this.clearPath()}
+                    clearAll={() => this.clearAll()}
+                    toggleInstructionsModal={() => this.toggleInstructionsModal()}>
+                </Menu>
+
+                <div className="algorithm-info">{algorithmInfo}</div>
 
                 <div className="grid">
                     {grid.map((row, rowIdx) => {
@@ -310,7 +285,7 @@ export default class PathfindingVisualizer extends Component {
 
 const getInitialGrid = () => {
     const grid = [];
-    for (let row = 0; row < 20; row++) {
+    for (let row = 0; row < 18; row++) {
         const currentRow = [];
         for (let col = 0; col < 50; col++) {
             currentRow.push(createNode(col, row));

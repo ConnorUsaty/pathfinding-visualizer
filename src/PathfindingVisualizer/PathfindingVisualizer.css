@@ -4,15 +4,7 @@
     box-sizing: border-box;
 }
 
-button {
-    cursor: pointer;
-}
-
-button:disabled {
-    cursor: default;
-}
-
-#algorithm-info {
+.algorithm-info {
     margin-top: 10px;
     margin-bottom: 10px;
     font-size: 18px;

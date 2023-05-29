@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #282c34;
+    padding: 10px;
+}
+
+.menu button {
+    margin-left: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.menu button:disabled {
+    cursor: default;
+}
