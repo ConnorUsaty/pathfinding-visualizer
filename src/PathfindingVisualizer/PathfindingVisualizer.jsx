@@ -1,5 +1,7 @@
 import React, {Component} from "react";
 import Node from "./Node/Node";
+import { InstructionsModal } from "./Intructions/Instructions";
+import { Legend } from "./Legend/Legend";
 
 import "./PathfindingVisualizer.css";
 
@@ -13,19 +15,24 @@ export default class PathfindingVisualizer extends Component {
         super();
         this.state = {
             grid: [],
+            showInstructions: true,
             mouseIsPressed: false,
             movingStart: false,
             movingFinish: false,
             algorithmInProgress: false,
             algorithmVisualized: false,
-            algorithm: "DFS",
+            algorithm: "",
             algorithmInfo: "",
-            delay: 2,
+            delay: -1,
         };
     }
 
     componentDidMount() {
         this.setState({grid: getInitialGrid(), algorithmInfo: this.configAlgorithmInfo(this.state.algorithm)});
+    }
+
+    toggleInstructionsModal() {
+        this.setState({showInstructions: !this.state.showInstructions});
     }
 
     handleMouseDown(row, col) {
@@ -310,7 +317,9 @@ export default class PathfindingVisualizer extends Component {
     configAlgorithmInfo(algorithm) {
         let algorithmInfo = "";
 
-        if (algorithm === "DFS") {
+        if (algorithm === "") {
+            algorithmInfo = "Select an algorithm and a speed to get started!";
+        } else if (algorithm === "DFS") {
             algorithmInfo = "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.";
         } else if (algorithm === "BFS") {
             algorithmInfo = "Breadth-first search (BFS) is an unweighted algorithm and DOES guarentee the shortest path.";
@@ -351,24 +360,36 @@ export default class PathfindingVisualizer extends Component {
         return (
             <>
                 <h1>Interactive Pathfinding Visualizer</h1>
-                
+
                 <select id="algorithm" onChange={() => this.handleAlgorithmChange()} disabled={algorithmInProgress}>
+                    {algorithm === "" && 
+                    <option value="" disabled selected>
+                        Select an algorithm...
+                    </option>}
+
                     <option value="DFS">Depth-First Search</option>
                     <option value="BFS">Breadth-First Search</option>
                     <option value="Djikstra">Djikstra's Algorithm</option>
                 </select>
 
-                <button onClick={() => this.visualizeAlgorithm(algorithm)} disabled={algorithmInProgress}>
-                    Visualize {algorithm}
-                </button>
-
                 <select id="speed" onChange={() => this.handleSpeedChange()} disabled={algorithmInProgress}>
+                    {this.state.delay === -1 && 
+                    <option value="" disabled selected>
+                        Select a speed...
+                    </option>}
+
                     <option value="VeryFast">Very Fast</option>
                     <option value="Fast">Fast</option>
                     <option value="Medium">Medium</option>
                     <option value="Slow">Slow</option>
                     <option value="VerySlow">Very Slow</option>
                 </select>
+
+                <button onClick={() => this.visualizeAlgorithm(algorithm)} 
+                    disabled={algorithmInProgress || algorithm === "" || this.state.delay === -1}>
+                        Visualize {algorithm}
+                </button>
+
 
                 <button onClick={() => this.clearPath()} disabled={algorithmInProgress}>
                     Clear Path
@@ -377,6 +398,14 @@ export default class PathfindingVisualizer extends Component {
                 <button onClick={() => this.clearAll()} disabled={algorithmInProgress}>
                     Clear All
                 </button>
+
+                <button onClick={() => this.toggleInstructionsModal()}>How to use</button>
+                    <InstructionsModal
+                    isOpen={this.state.showInstructions}
+                    onClose={() => this.toggleInstructionsModal()}
+                    />
+
+                <Legend />
 
                 <div id="algorithm-info">{algorithmInfo}</div>
 
