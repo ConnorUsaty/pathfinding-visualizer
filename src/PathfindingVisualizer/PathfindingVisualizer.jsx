@@ -8,6 +8,8 @@ import Node from "./Node/Node";
 
 import { visualDFS, visualDFS_NA } from "./Algorithms/Pathfinding/dfs";
 import { visualBFS, visualBFS_NA } from "./Algorithms/Pathfinding/bfs";
+import { randomMaze } from "./Algorithms/MazeGeneration/random";
+import { recursiveDivisionMaze } from "./Algorithms/MazeGeneration/recursiveDivision";
 
 import "./PathfindingVisualizer.css";
 
@@ -30,6 +32,7 @@ export default class PathfindingVisualizer extends Component {
             algorithm: "",
             algorithmInfo: "",
             delay: -1,
+            maze: "",
         };
     }
 
@@ -135,9 +138,10 @@ export default class PathfindingVisualizer extends Component {
     }
 
     clearAll() {
-        if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
+        if (!this.clearPath()) return false; // If clearPath failed, then an algorithm is already in progress
         const newGrid = clearWalls(this.state.grid);
         this.setState({grid: newGrid, algorithmVisualized: false});
+        return true;
     }
 
     async visualizeAlgorithm(algorithm) {
@@ -174,6 +178,22 @@ export default class PathfindingVisualizer extends Component {
             visualBFS_NA(grid, startNode, finishNode);
         }
         this.setState({algorithmVisualized: true});
+    }
+
+    async generateMaze(maze) {
+        if (!this.clearAll()) return; // If clearAll failed, then an algorithm is already in progress
+        this.setState({algorithmInProgress: true});
+
+        const { grid } = this.state;
+        const startNode = grid[START_NODE_ROW][START_NODE_COL];
+        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+
+        if (maze === "Random") {
+            await randomMaze(grid, startNode, finishNode);
+        } else if (maze === "Recursive Division") {
+            await recursiveDivisionMaze(grid, startNode, finishNode);
+        }
+        this.setState({algorithmInProgress: false});
     }
 
 
@@ -220,11 +240,17 @@ export default class PathfindingVisualizer extends Component {
         return delay;
     }
 
+    handleMazeChange() {
+        const newMaze = document.getElementById("maze").value;
+        this.setState({maze: newMaze});
+    }
+
     render() {
         const { grid } = this.state;
         const { algorithm } = this.state;
         const { algorithmInfo } = this.state;
         const { algorithmInProgress } = this.state;
+        const { maze } = this.state;
 
         return (
             <>
@@ -243,12 +269,17 @@ export default class PathfindingVisualizer extends Component {
                     delay={this.state.delay}
                     onSpeedChange={() => this.handleSpeedChange()}
                     visualizeAlgorithm={(algorithm) => this.visualizeAlgorithm(algorithm)}
+                    maze={maze}
+                    onMazeChange={() => this.handleMazeChange()}
+                    generateMaze={(maze) => this.generateMaze(maze)}
                     clearPath={() => this.clearPath()}
                     clearAll={() => this.clearAll()}
                     toggleInstructionsModal={() => this.toggleInstructionsModal()}>
                 </Menu>
 
-                <div className="algorithm-info">{algorithmInfo}</div>
+                <div className="algorithm-info">
+                    {algorithmInfo}
+                </div>
 
                 <div className="grid">
                     {grid.map((row, rowIdx) => {

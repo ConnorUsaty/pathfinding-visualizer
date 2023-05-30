@@ -11,6 +11,9 @@ export default class Menu extends Component {
         delay,
         onSpeedChange,
         visualizeAlgorithm,
+        maze,
+        onMazeChange,
+        generateMaze,
         clearPath,
         clearAll,
         toggleInstructionsModal,
@@ -45,6 +48,20 @@ export default class Menu extends Component {
             <button onClick={() => visualizeAlgorithm(algorithm)} 
               disabled={algorithmInProgress || algorithm === "" || delay === -1}>
                 Visualize {algorithm}
+            </button>
+
+            <select id="maze" onChange={() => onMazeChange()} disabled={algorithmInProgress}>
+                {maze === "" &&
+                <option value="" disabled selected>
+                    Select a maze...
+                </option>}
+
+                <option value="Random">Random</option>
+                <option value="RecursiveDivision">Recursive Division</option>
+            </select>
+
+            <button onClick={() => generateMaze(maze)} disabled={algorithmInProgress || maze === ""}>
+                Generate Maze
             </button>
 
             <button onClick={() => clearPath()} disabled={algorithmInProgress}>
