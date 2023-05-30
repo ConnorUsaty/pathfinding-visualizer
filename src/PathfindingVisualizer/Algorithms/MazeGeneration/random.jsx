@@ -1,6 +1,6 @@
 export async function randomMaze(grid) {
-    for (let row = 0; row < 18; row++) {
-        for (let col = 0; col < 50; col++) {
+    for (let row = 0; row < grid.length; row++) {
+        for (let col = 0; col < grid[0].length; col++) {
             await new Promise(resolve => setTimeout(resolve, 6));
             const node = grid[row][col];
             if (node.isStart || node.isFinish) continue;

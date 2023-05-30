@@ -185,13 +185,11 @@ export default class PathfindingVisualizer extends Component {
         this.setState({algorithmInProgress: true});
 
         const { grid } = this.state;
-        const startNode = grid[START_NODE_ROW][START_NODE_COL];
-        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
 
         if (maze === "Random") {
-            await randomMaze(grid, startNode, finishNode);
-        } else if (maze === "Recursive Division") {
-            await recursiveDivisionMaze(grid, startNode, finishNode);
+            await randomMaze(grid);
+        } else if (maze === "RecursiveDivision") {
+            await recursiveDivisionMaze(grid);
         }
         this.setState({algorithmInProgress: false});
     }
@@ -316,7 +314,7 @@ export default class PathfindingVisualizer extends Component {
 
 const getInitialGrid = () => {
     const grid = [];
-    for (let row = 0; row < 18; row++) {
+    for (let row = 0; row < 19; row++) {
         const currentRow = [];
         for (let col = 0; col < 50; col++) {
             currentRow.push(createNode(col, row));
