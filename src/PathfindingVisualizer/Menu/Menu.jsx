@@ -21,14 +21,29 @@ export default class Menu extends Component {
 
     return (
         <div className="menu">
+
+            <select id="maze" onChange={() => onMazeChange()} disabled={algorithmInProgress}>
+                {maze === "" &&
+                <option value="" disabled selected>
+                    Select a maze...
+                </option>}
+
+                <option value="RecursiveDivision">Recursive Division</option>
+                <option value="Random">Random</option>
+            </select>
+
+            <button onClick={() => generateMaze(maze)} disabled={algorithmInProgress || maze === ""}>
+                Generate Maze
+            </button>
+
             <select id="algorithm" onChange={() => onAlgorithmChange()} disabled={algorithmInProgress}>
                 {algorithm === "" && 
                 <option value="" disabled selected>
                     Select an algorithm...
                 </option>}
 
-                <option value="DFS">Depth-First Search</option>
                 <option value="BFS">Breadth-First Search</option>
+                <option value="DFS">Depth-First Search</option>
                 <option value="Djikstra">Djikstra's Algorithm</option>
             </select>
 
@@ -50,19 +65,6 @@ export default class Menu extends Component {
                 Visualize {algorithm}
             </button>
 
-            <select id="maze" onChange={() => onMazeChange()} disabled={algorithmInProgress}>
-                {maze === "" &&
-                <option value="" disabled selected>
-                    Select a maze...
-                </option>}
-
-                <option value="Random">Random</option>
-                <option value="RecursiveDivision">Recursive Division</option>
-            </select>
-
-            <button onClick={() => generateMaze(maze)} disabled={algorithmInProgress || maze === ""}>
-                Generate Maze
-            </button>
 
             <button onClick={() => clearPath()} disabled={algorithmInProgress}>
                 Clear Path

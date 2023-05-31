@@ -26,8 +26,7 @@
     color: black;
     position: absolute;
     font-family: "FontAwesome";
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 23px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -45,7 +44,6 @@
     position: absolute;
     font-family: "FontAwesome";
     font-size: 25px;
-    font-weight: bold;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

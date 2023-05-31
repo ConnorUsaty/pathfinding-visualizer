@@ -8,8 +8,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #282c34;
-    padding: 5px;
+    margin-top: 5px;
+    padding: 10px;
+}
+
+.menu select {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.menu select:disabled {
+    cursor: default;
 }
 
 .menu button {

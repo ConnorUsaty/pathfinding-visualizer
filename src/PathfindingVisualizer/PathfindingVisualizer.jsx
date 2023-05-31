@@ -8,15 +8,17 @@ import Node from "./Node/Node";
 
 import { visualDFS, visualDFS_NA } from "./Algorithms/Pathfinding/dfs";
 import { visualBFS, visualBFS_NA } from "./Algorithms/Pathfinding/bfs";
+import { visualDjikstra, visualDjikstra_NA } from "./Algorithms/Pathfinding/djikstra";
 import { randomMaze } from "./Algorithms/MazeGeneration/random";
 import { recursiveDivisionMaze } from "./Algorithms/MazeGeneration/recursiveDivision";
 
 import "./PathfindingVisualizer.css";
 
-let START_NODE_ROW = 10;
-let START_NODE_COL = 5;
-let FINISH_NODE_ROW = 14;
-let FINISH_NODE_COL = 35;
+
+let START_NODE_ROW = 1;
+let START_NODE_COL = 1;
+let FINISH_NODE_ROW = 15;
+let FINISH_NODE_COL = 46;
 
 export default class PathfindingVisualizer extends Component {
     constructor() {
@@ -158,7 +160,7 @@ export default class PathfindingVisualizer extends Component {
         } else if (algorithm === "BFS") {
             await visualBFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "Djikstra") {
-            await visualBFS(grid, startNode, finishNode, delay);
+            await visualDjikstra(grid, startNode, finishNode, delay);
         }
         this.setState({algorithmInProgress: false, algorithmVisualized: true});
     }
@@ -175,7 +177,7 @@ export default class PathfindingVisualizer extends Component {
         } else if (algorithm === "BFS") {
             visualBFS_NA(grid, startNode, finishNode);
         } else if (algorithm === "Djikstra") {
-            visualBFS_NA(grid, startNode, finishNode);
+            visualDjikstra_NA(grid, startNode, finishNode);
         }
         this.setState({algorithmVisualized: true});
     }
@@ -259,7 +261,7 @@ export default class PathfindingVisualizer extends Component {
 
                 <Header />
                 <Legend />
-
+                
                 <Menu
                     algorithm={algorithm}
                     onAlgorithmChange={() => this.handleAlgorithmChange()}
@@ -314,9 +316,9 @@ export default class PathfindingVisualizer extends Component {
 
 const getInitialGrid = () => {
     const grid = [];
-    for (let row = 0; row < 19; row++) {
+    for (let row = 0; row < 17; row++) {
         const currentRow = [];
-        for (let col = 0; col < 50; col++) {
+        for (let col = 0; col < 48; col++) {
             currentRow.push(createNode(col, row));
         }
         grid.push(currentRow);
