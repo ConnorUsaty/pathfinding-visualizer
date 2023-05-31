@@ -1,5 +1,3 @@
-import { getValidNeighbors } from './dfs.jsx';
-
 export async function visualBFS(grid, start, finish, delay) {
     const queue = [];
     queue.push(start);
@@ -60,4 +58,14 @@ export function visualBFS_NA(grid, start, finish) {
             }
         }
     }
+}
+
+function getValidNeighbors(grid, curr) {
+    const neighbors = [];
+    const { row, col } = curr;
+    if (row > 0) neighbors.push(grid[row - 1][col]);
+    if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);
+    if (col > 0) neighbors.push(grid[row][col - 1]);
+    if (row < grid.length - 1) neighbors.push(grid[row + 1][col]);
+    return neighbors.filter(neighbor => !neighbor.isWall);
 }

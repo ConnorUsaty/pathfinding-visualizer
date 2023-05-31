@@ -9,6 +9,8 @@ import Node from "./Node/Node";
 import { visualDFS, visualDFS_NA } from "./Algorithms/Pathfinding/dfs";
 import { visualBFS, visualBFS_NA } from "./Algorithms/Pathfinding/bfs";
 import { visualDjikstra, visualDjikstra_NA } from "./Algorithms/Pathfinding/djikstra";
+import { visualAStar, visualAStar_NA } from "./Algorithms/Pathfinding/aStar";
+
 import { randomMaze } from "./Algorithms/MazeGeneration/random";
 import { recursiveDivisionMaze } from "./Algorithms/MazeGeneration/recursiveDivision";
 
@@ -159,8 +161,10 @@ export default class PathfindingVisualizer extends Component {
             await visualDFS(grid, startNode, finishNode, delay);
         } else if (algorithm === "BFS") {
             await visualBFS(grid, startNode, finishNode, delay);
-        } else if (algorithm === "Djikstra") {
+        } else if (algorithm === "Djikstra's") {
             await visualDjikstra(grid, startNode, finishNode, delay);
+        } else if (algorithm === "A*") {
+            await visualAStar(grid, startNode, finishNode, delay);
         }
         this.setState({algorithmInProgress: false, algorithmVisualized: true});
     }
@@ -176,8 +180,10 @@ export default class PathfindingVisualizer extends Component {
             visualDFS_NA(grid, startNode, finishNode);
         } else if (algorithm === "BFS") {
             visualBFS_NA(grid, startNode, finishNode);
-        } else if (algorithm === "Djikstra") {
+        } else if (algorithm === "Djikstra's") {
             visualDjikstra_NA(grid, startNode, finishNode);
+        } else if (algorithm === "A*") {
+            visualAStar_NA(grid, startNode, finishNode);
         }
         this.setState({algorithmVisualized: true});
     }
@@ -212,8 +218,10 @@ export default class PathfindingVisualizer extends Component {
             algorithmInfo = "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.";
         } else if (algorithm === "BFS") {
             algorithmInfo = "Breadth-first search (BFS) is an unweighted algorithm and DOES guarentee the shortest path.";
-        } else if (algorithm === "Djikstra") {
+        } else if (algorithm === "Djikstra's") {
             algorithmInfo = "Djikstra's algorithm is a weighted algorithm and DOES guarentee the shortest path.";
+        } else if (algorithm === "A*") {
+            algorithmInfo = "A* search (Manhattan heuristic) is a weighted algorithm and DOES guarentee the shortest path.";
         }
         return algorithmInfo;
     }

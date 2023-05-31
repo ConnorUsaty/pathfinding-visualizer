@@ -42,9 +42,10 @@ export default class Menu extends Component {
                     Select an algorithm...
                 </option>}
 
+                <option value="Djikstra's">Djikstra's Algorithm</option>
+                <option value="A*">A* Search</option>
                 <option value="BFS">Breadth-First Search</option>
                 <option value="DFS">Depth-First Search</option>
-                <option value="Djikstra">Djikstra's Algorithm</option>
             </select>
 
             <select id="speed" onChange={() => onSpeedChange()} disabled={algorithmInProgress}>
