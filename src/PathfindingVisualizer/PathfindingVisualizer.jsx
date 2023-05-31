@@ -16,7 +16,6 @@ import { recursiveDivisionMaze } from "./Algorithms/MazeGeneration/recursiveDivi
 
 import "./PathfindingVisualizer.css";
 
-
 let START_NODE_ROW = 1;
 let START_NODE_COL = 1;
 let FINISH_NODE_ROW = 15;
@@ -37,6 +36,7 @@ export default class PathfindingVisualizer extends Component {
             algorithmInfo: "",
             delay: -1,
             maze: "",
+            heuristic: "",
         };
     }
 
@@ -71,10 +71,10 @@ export default class PathfindingVisualizer extends Component {
 
         if (this.state.movingStart && !node.isFinish && !node.isWall) {
             this.moveStart(grid, row, col);
-            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm);
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm, this.state.heuristic);
         } else if (this.state.movingFinish && !node.isStart && !node.isWall) {
             this.moveFinish(grid, row, col);
-            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm);
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm, this.state.heuristic);
         } else if (!node.isStart && !node.isFinish && !node.isVisited && !this.state.movingStart && !this.state.movingFinish) {
             this.toggleWall(grid, row, col);
         }
@@ -156,6 +156,7 @@ export default class PathfindingVisualizer extends Component {
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
         const { delay } = this.state;
+        const { heuristic } = this.state;
 
         if (algorithm === "DFS") {
             await visualDFS(grid, startNode, finishNode, delay);
@@ -164,12 +165,12 @@ export default class PathfindingVisualizer extends Component {
         } else if (algorithm === "Djikstra's") {
             await visualDjikstra(grid, startNode, finishNode, delay);
         } else if (algorithm === "A*") {
-            await visualAStar(grid, startNode, finishNode, delay);
+            await visualAStar(heuristic, grid, startNode, finishNode, delay);
         }
         this.setState({algorithmInProgress: false, algorithmVisualized: true});
     }
 
-    visualizeAlgorithmNoAnimation(algorithm) {
+    visualizeAlgorithmNoAnimation(algorithm, heuristic) {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
 
         const { grid } = this.state;
@@ -183,7 +184,7 @@ export default class PathfindingVisualizer extends Component {
         } else if (algorithm === "Djikstra's") {
             visualDjikstra_NA(grid, startNode, finishNode);
         } else if (algorithm === "A*") {
-            visualAStar_NA(grid, startNode, finishNode);
+            visualAStar_NA(heuristic, grid, startNode, finishNode);
         }
         this.setState({algorithmVisualized: true});
     }
@@ -205,23 +206,23 @@ export default class PathfindingVisualizer extends Component {
 
     handleAlgorithmChange() {
         const newAlgorithm = document.getElementById("algorithm").value;
-        this.setState({algorithm: newAlgorithm, algorithmInfo: this.configAlgorithmInfo(newAlgorithm)});
-        if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(newAlgorithm);
+        this.setState({algorithm: newAlgorithm, algorithmInfo: this.configAlgorithmInfo(newAlgorithm), heuristic: "Manhattan"});
+        if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(newAlgorithm, this.state.heuristic);
     }
 
     configAlgorithmInfo(algorithm) {
         let algorithmInfo = "";
 
         if (algorithm === "") {
-            algorithmInfo = "Select an algorithm and a speed to get started!";
+            algorithmInfo="Select an algorithm and a speed to get started!";
         } else if (algorithm === "DFS") {
-            algorithmInfo = "Depth-first search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.";
+            algorithmInfo = "Depth-First Search (DFS) is an unweighted algorithm and does NOT guarentee the shortest path.";
         } else if (algorithm === "BFS") {
-            algorithmInfo = "Breadth-first search (BFS) is an unweighted algorithm and DOES guarentee the shortest path.";
+            algorithmInfo="Breadth-First Search (BFS) is an unweighted algorithm and guarentees the shortest path.";
         } else if (algorithm === "Djikstra's") {
-            algorithmInfo = "Djikstra's algorithm is a weighted algorithm and DOES guarentee the shortest path.";
+            algorithmInfo="Djikstra's Algorithm is a weighted algorithm and guarentees the shortest path.";
         } else if (algorithm === "A*") {
-            algorithmInfo = "A* search (Manhattan heuristic) is a weighted algorithm and DOES guarentee the shortest path.";
+            algorithmInfo="A* Search is a weighted algorithm and guarentees the shortest path.";
         }
         return algorithmInfo;
     }
@@ -253,6 +254,12 @@ export default class PathfindingVisualizer extends Component {
         this.setState({maze: newMaze});
     }
 
+    handleHeuristicChange() {
+        const newHeuristic = document.getElementById("heuristic").value;
+        this.setState({heuristic: newHeuristic});
+        if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm, newHeuristic);
+    }
+
     render() {
         const { grid } = this.state;
         const { algorithm } = this.state;
@@ -276,6 +283,7 @@ export default class PathfindingVisualizer extends Component {
                     algorithmInProgress={algorithmInProgress}
                     delay={this.state.delay}
                     onSpeedChange={() => this.handleSpeedChange()}
+                    onHeuristicChange={() => this.handleHeuristicChange()}
                     visualizeAlgorithm={(algorithm) => this.visualizeAlgorithm(algorithm)}
                     maze={maze}
                     onMazeChange={() => this.handleMazeChange()}

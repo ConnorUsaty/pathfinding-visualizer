@@ -1,4 +1,4 @@
-export async function visualAStar(grid, start, finish, delay) {
+export async function visualAStar(h, grid, start, finish, delay) {
     // Initialize the open set with the start node
     const openSet = new Set();
     openSet.add(start);
@@ -7,9 +7,9 @@ export async function visualAStar(grid, start, finish, delay) {
     const gScore = new Map();
     gScore.set(start, 0);
 
-    // Store the total estimated cost from the start node to the goal node through each node
+    // Store the total estimated cost from the start node to the finish node through each node
     const fScore = new Map();
-    fScore.set(start, heuristic(start, finish));
+    fScore.set(start, heuristic(h, start, finish));
 
     // Store the parent node for each node
     const cameFrom = new Map();
@@ -34,11 +34,10 @@ export async function visualAStar(grid, start, finish, delay) {
         await new Promise(resolve => setTimeout(resolve, delay));
         currentNode.isVisited = true;
         document.getElementById(`node-${currentNode.row}-${currentNode.col}`).className =
-        'node node-visited';
+            'node node-visited';
 
         // If the current node is the finish node, then we can stop the algorithm
         if (currentNode === finish) {
-            // Reconstruct the path
             let curr = currentNode;
             while (curr !== start) {
                 document.getElementById(`node-${curr.row}-${curr.col}`).className =
@@ -63,8 +62,8 @@ export async function visualAStar(grid, start, finish, delay) {
                 cameFrom.set(neighbor, currentNode);
                 gScore.set(neighbor, tentativeGScore);
 
-                // Calculate the total estimated cost from the start node to the goal node through the neighbor node
-                const neighborFScore = tentativeGScore + heuristic(neighbor, finish);
+                // Calculate the total estimated cost from the start node to the finish node through the neighbor node
+                const neighborFScore = tentativeGScore + heuristic(h, neighbor, finish);
                 fScore.set(neighbor, neighborFScore);
 
                 if (!openSet.has(neighbor)) {
@@ -74,11 +73,9 @@ export async function visualAStar(grid, start, finish, delay) {
             }
         }
     }
-    // If the open set is empty and the goal has not been found, return false
-    return false;
 }
 
-export function visualAStar_NA(grid, start, finish) {
+export function visualAStar_NA(h, grid, start, finish) {
     // Initialize the open set with the start node
     const openSet = new Set();
     openSet.add(start);
@@ -87,9 +84,9 @@ export function visualAStar_NA(grid, start, finish) {
     const gScore = new Map();
     gScore.set(start, 0);
 
-    // Store the total estimated cost from the start node to the goal node through each node
+    // Store the total estimated cost from the start node to the finish node through each node
     const fScore = new Map();
-    fScore.set(start, heuristic(start, finish));
+    fScore.set(start, heuristic(h, start, finish));
 
     // Store the parent node for each node
     const cameFrom = new Map();
@@ -113,16 +110,14 @@ export function visualAStar_NA(grid, start, finish) {
         // Document the current node as visited and show it visually
         currentNode.isVisited = true;
         document.getElementById(`node-${currentNode.row}-${currentNode.col}`).className =
-        'node node-visited-na';
+            'node node-visited-na';
 
         // If the current node is the finish node, then we can stop the algorithm
         if (currentNode === finish) {
-            // Reconstruct the path
             let curr = currentNode;
             while (curr !== start) {
                 document.getElementById(`node-${curr.row}-${curr.col}`).className =
                     'node node-correct-path-na';
-                // Delay showing the next node in the path
                 curr = cameFrom.get(curr);
             }
             document.getElementById(`node-${start.row}-${start.col}`).className =
@@ -141,8 +136,8 @@ export function visualAStar_NA(grid, start, finish) {
                 cameFrom.set(neighbor, currentNode);
                 gScore.set(neighbor, tentativeGScore);
 
-                // Calculate the total estimated cost from the start node to the goal node through the neighbor node
-                const neighborFScore = tentativeGScore + heuristic(neighbor, finish);
+                // Calculate the total estimated cost from the start node to the finish node through the neighbor node
+                const neighborFScore = tentativeGScore + heuristic(h, neighbor, finish);
                 fScore.set(neighbor, neighborFScore);
 
                 if (!openSet.has(neighbor)) {
@@ -152,10 +147,10 @@ export function visualAStar_NA(grid, start, finish) {
             }
         }
     }
-    // If the open set is empty and the goal has not been found, return false
-    return false;
 }
 
+
+// Helper functions
 function getValidNeighbors(grid, node) {
     const neighbors = [];
     const { row, col } = node;
@@ -166,9 +161,31 @@ function getValidNeighbors(grid, node) {
     return neighbors.filter(neighbor => !neighbor.isWall);
 }
 
-function heuristic(node, goal) {
+
+// Heuristics
+function heuristic(h, node, finish) {
+    if (h === "Manhattan") return manhattan(node, finish);
+    if (h === "Euclidean") return euclidean(node, finish);
+    if (h === "Diagonal") return diagonal(node, finish);
+}
+
+function manhattan(node, finish) {
     // Calculate the Manhattan distance between two nodes on a grid
-    const dx = Math.abs(node.row - goal.row);
-    const dy = Math.abs(node.col - goal.col);
+    const dx = Math.abs(node.row - finish.row);
+    const dy = Math.abs(node.col - finish.col);
     return dx + dy;
+}
+
+function euclidean(node, finish) {
+    // Calculate the Euclidean distance between two nodes on a grid
+    const dx = Math.abs(node.row - finish.row);
+    const dy = Math.abs(node.col - finish.col);
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function diagonal(node, finish) {
+    // Calculate the Diagonal distance between two nodes on a grid
+    const dx = Math.abs(node.row - finish.row);
+    const dy = Math.abs(node.col - finish.col);
+    return Math.max(dx, dy);
 }

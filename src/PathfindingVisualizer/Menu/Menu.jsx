@@ -10,6 +10,7 @@ export default class Menu extends Component {
         algorithmInProgress,
         delay,
         onSpeedChange,
+        onHeuristicChange,
         visualizeAlgorithm,
         maze,
         onMazeChange,
@@ -22,9 +23,9 @@ export default class Menu extends Component {
     return (
         <div className="menu">
 
-            <select id="maze" onChange={() => onMazeChange()} disabled={algorithmInProgress}>
+            <select id="maze" onChange={() => onMazeChange()} disabled={algorithmInProgress} defaultValue={""}>
                 {maze === "" &&
-                <option value="" disabled selected>
+                <option value="" disabled>
                     Select a maze...
                 </option>}
 
@@ -36,21 +37,21 @@ export default class Menu extends Component {
                 Generate Maze
             </button>
 
-            <select id="algorithm" onChange={() => onAlgorithmChange()} disabled={algorithmInProgress}>
+            <select id="algorithm" onChange={() => onAlgorithmChange()} disabled={algorithmInProgress} defaultValue={""}>
                 {algorithm === "" && 
-                <option value="" disabled selected>
+                <option value="" disabled>
                     Select an algorithm...
                 </option>}
 
-                <option value="Djikstra's">Djikstra's Algorithm</option>
                 <option value="A*">A* Search</option>
+                <option value="Djikstra's">Djikstra's Algorithm</option>
                 <option value="BFS">Breadth-First Search</option>
                 <option value="DFS">Depth-First Search</option>
             </select>
 
-            <select id="speed" onChange={() => onSpeedChange()} disabled={algorithmInProgress}>
+            <select id="speed" onChange={() => onSpeedChange()} disabled={algorithmInProgress} defaultValue={""}>
                 {delay === -1 && 
-                <option value="" disabled selected>
+                <option value="" disabled>
                     Select a speed...
                 </option>}
 
@@ -59,6 +60,17 @@ export default class Menu extends Component {
                 <option value="Medium">Medium</option>
                 <option value="Slow">Slow</option>
                 <option value="VerySlow">Very Slow</option>
+            </select>
+
+            <select id="heuristic" onChange={() => onHeuristicChange()} disabled={algorithmInProgress || algorithm !== "A*"} defaultValue={""}>
+                {algorithm !== "A*" && 
+                <option value="">
+                    A* Only
+                </option>}
+
+                {algorithm === "A*" && <option value="Manhattan">Manhattan Distance</option>}
+                {algorithm === "A*" && <option value="Euclidean">Euclidean Distance</option>}
+                {algorithm === "A*" && <option value="Diagonal">Diagonal Distance</option>}
             </select>
 
             <button onClick={() => visualizeAlgorithm(algorithm)} 
