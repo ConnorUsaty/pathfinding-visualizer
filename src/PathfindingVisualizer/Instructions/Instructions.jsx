@@ -4,7 +4,7 @@ export const InstructionsModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
   
     return (
-        <div className="modal-overlay">
+        <div className="InstructionsModal modal-overlay">
             <div className="modal">
                 <div className="modal-header">
                     <h2 className="modal-title">How to Use</h2>

@@ -2,7 +2,6 @@ import React, {Component} from "react";
 
 import { InstructionsModal } from "./Instructions/Instructions";
 import { Header } from "./Header/Header";
-import { Legend } from "./Legend/Legend";
 import Menu from "./Menu/Menu";
 import Node from "./Node/Node";
 
@@ -18,8 +17,8 @@ import "./PathfindingVisualizer.css";
 
 let START_NODE_ROW = 1;
 let START_NODE_COL = 1;
-let FINISH_NODE_ROW = 15;
-let FINISH_NODE_COL = 46;
+let FINISH_NODE_ROW = 2;
+let FINISH_NODE_COL = 2;
 
 export default class PathfindingVisualizer extends Component {
     constructor() {
@@ -268,14 +267,14 @@ export default class PathfindingVisualizer extends Component {
         const { maze } = this.state;
 
         return (
-            <>
+            <><div className="container">
+                
                 <InstructionsModal
                     isOpen={this.state.showInstructions}
                     onClose={() => this.toggleInstructionsModal()}>
                 </InstructionsModal>
-
-                <Header />
-                <Legend />
+                
+                <Header /> {/* Header includes Legend Component */}
                 
                 <Menu
                     algorithm={algorithm}
@@ -324,17 +323,24 @@ export default class PathfindingVisualizer extends Component {
                         );
                     })}
                 </div>
-            </>
+            </div></>
         );
     }
 }
 
 
 const getInitialGrid = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Calculate the number of rows and columns based on the screen size
+    const numCols = Math.floor(width / 29) - 8;
+    const numRows = Math.floor(height / 29) - 8;
+
     const grid = [];
-    for (let row = 0; row < 17; row++) {
+    for (let row = 0; row < numRows; row++) {
         const currentRow = [];
-        for (let col = 0; col < 48; col++) {
+        for (let col = 0; col < numCols; col++) {
             currentRow.push(createNode(col, row));
         }
         grid.push(currentRow);

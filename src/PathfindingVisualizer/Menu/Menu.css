@@ -1,32 +1,43 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 .menu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 5px;
-    padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  background-color: #3A4F50;
 }
 
-.menu select {
-    margin-left: 5px;
-    cursor: pointer;
+.menu select,
+.menu button {
+  background-color: transparent;
+  border: 1px solid #0EF6CC;
+  color: #0EF6CC;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
 }
 
-.menu select:disabled {
-    cursor: default;
+.menu select:focus,
+.menu button:focus {
+  outline: none;
+  color: white;
+  border-color: white;
+}
+
+.menu select:disabled,
+.menu button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
 }
 
 .menu button {
-    margin-left: 10px;
-    margin-right: 10px;
-    cursor: pointer;
+  min-width: 120px;
 }
 
-.menu button:disabled {
-    cursor: default;
+.menu select option {
+  background-color: #3A4F50;
+  color: #0EF6CC;
 }

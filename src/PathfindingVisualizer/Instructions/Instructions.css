@@ -1,58 +1,79 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+.InstructionsModal.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.65);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-  
-.modal {
-    background-color: #fff;
-    width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.InstructionsModal .modal {
+  background-color: #3A4F50;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 80%;
 }
 
-.modal-header {
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ccc;
+.InstructionsModal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
-.modal-title {
-    margin: 0;
-    font-size: 24px;
+.InstructionsModal .modal-title {
+  color: #0EF6CC;
+  font-size: 24px;
+  font-weight: bold;
+  border-bottom: 1px solid #0EF6CC;
+  padding-bottom: 10px;
 }
 
-.close-button {
-    color: red;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
+.InstructionsModal .close-button {
+  background-color: transparent;
+  border: none;
+  color: #0EF6CC;
+  font-size: 20px;
+  cursor: pointer;
 }
 
-.modal-content {
-    padding: 20px;
-    text-align: left;
-    margin-left: 15px;
+.InstructionsModal .close-button:hover {
+  color: #ff4d4d;
 }
 
-.modal-content li {
-    margin-bottom: 10px;
-    font-size: 18px;
+.InstructionsModal .modal-content {
+  color: #F4FEFD;
+  margin-bottom: 20px;
+  padding-left: 20px;
+  text-align: left;
 }
-    
+
+.InstructionsModal .modal-content li {
+  margin-bottom: 10px;
+}
+
+.InstructionsModal select,
+.InstructionsModal button {
+  background-color: transparent;
+  border: 1px solid #0EF6CC;
+  color: #0EF6CC;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+@media screen and (max-width: 480px) {
+  .InstructionsModal .modal {
+    width: 90%;
+  }
+  .InstructionsModal .modal-content {
+    padding-left: 5;
+    font-size: 14px;
+  }
+}

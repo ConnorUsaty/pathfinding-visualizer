@@ -2,8 +2,7 @@ import "./Legend.css"
 
 export const Legend = () => {
     return (
-      <div className="legend">
-        <div className="legend-row">
+        <div className="legend">
             <div className="legend-item">
                 <div className="node"><div className="node-start"></div></div>
                 <span>Start</span>
@@ -12,8 +11,6 @@ export const Legend = () => {
                 <div className="node"><div className="node-finish"></div></div>
                 <span>Finish</span>
             </div>
-        </div>
-        <div className="legend-row">
             <div className="legend-item">
                 <div className="node node-wall"></div>
                 <span>Wall</span>
@@ -27,6 +24,5 @@ export const Legend = () => {
                 <span>Correct Path</span>
             </div>
         </div>
-      </div>
-    );
-  };
+    )
+}
