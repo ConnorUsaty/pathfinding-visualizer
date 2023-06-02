@@ -5,14 +5,22 @@
 }
 
 .container {
+    height: 100vh;
     background-color: #3A4F50;
-    padding-bottom: 20px;
 }
 
 .algorithm-info {
     color: white;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    font-size: 16px;
+    padding-bottom: 15px;
+    font-size: 18px;
 }
-  
+
+.grid {
+    background-color: #3A4F50;
+}
+
+@media screen and (max-width: 525px) {
+    .algorithm-info {
+        font-size: 12px;
+    }
+}

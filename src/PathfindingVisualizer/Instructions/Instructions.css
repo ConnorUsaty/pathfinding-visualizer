@@ -68,12 +68,24 @@
   transition: border-color 0.3s ease;
 }
 
+.InstructionsModal select:focus,
+.InstructionsModal select:hover,
+.InstructionsModal button:focus,
+.InstructionsModal button:hover {
+  outline: none;
+}
+
 @media screen and (max-width: 480px) {
   .InstructionsModal .modal {
     width: 90%;
   }
   .InstructionsModal .modal-content {
     padding-left: 5;
-    font-size: 14px;
+    font-size: 12px;
+  }
+  .InstructionsModal select,
+  .InstructionsModal button {
+    font-size: 10px;
+    padding: 5px 10px;
   }
 }

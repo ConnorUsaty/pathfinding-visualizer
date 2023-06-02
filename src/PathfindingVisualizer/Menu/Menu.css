@@ -20,8 +20,10 @@
   transition: border-color 0.3s ease;
 }
 
-.menu select:focus,
-.menu button:focus {
+.menu select:enabled:focus,
+.menu select:enabled:hover,
+.menu button:enabled:focus,
+.menu button:enabled:hover {
   outline: none;
   color: white;
   border-color: white;
@@ -33,11 +35,29 @@
   opacity: 0.3;
 }
 
-.menu button {
+.menu button,
+.menu select {
   min-width: 120px;
 }
 
 .menu select option {
   background-color: #3A4F50;
   color: #0EF6CC;
+}
+
+@media screen and (max-width: 700px) {
+  .menu select,
+  .menu button {
+    font-size: 12px;
+    width: 35%;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .menu select,
+  .menu button {
+    font-size: 10px;
+    padding: 5px 10px;
+    width: 40%;
+  }
 }

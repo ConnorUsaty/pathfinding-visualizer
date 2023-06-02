@@ -16,3 +16,14 @@
   color: #F4FEFD;
   margin-left: 5px;
 }
+
+@media screen and (max-width: 525px) {
+  .legend {
+    gap: 10px;
+  }
+  
+  .legend span{
+    font-size: 12px;
+    margin-left: 2px;
+  }
+}

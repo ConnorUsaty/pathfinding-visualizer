@@ -40,16 +40,20 @@ export default class PathfindingVisualizer extends Component {
     }
 
     componentDidMount() {
+        // Initializes the grid and algorithmInfo
         this.setState({grid: getInitialGrid(), algorithmInfo: this.configAlgorithmInfo(this.state.algorithm)});
     }
 
     toggleInstructionsModal() {
+        // Toggles the instructions modal
         this.setState({showInstructions: !this.state.showInstructions});
     }
 
     handleMouseDown(row, col) {
+        // Prevents the user from interacting with the grid while an algorithm is in progress
         if (this.state.algorithmInProgress) return this.handleMouseUp();
 
+        // Handles the mouse down event on a node
         const { grid } = this.state;
         this.setState({mouseIsPressed: true});
 
@@ -63,8 +67,10 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleMouseEnter(row, col) {
+        // Prevents the user from interacting with the grid while an algorithm is in progress
         if (!this.state.mouseIsPressed || this.state.algorithmInProgress) return this.handleMouseUp();
         
+        // Handles the movement of the mouse into a new node
         const { grid } = this.state;
         const node = grid[row][col];
 
@@ -80,10 +86,12 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleMouseUp() {
+        // Resets the mouseIsPressed and movingStart/Finish attributes when mouse is released
         this.setState({mouseIsPressed: false, movingStart: false, movingFinish: false});
     }
 
     moveStart(grid, row, col) {
+        // Moves the start node to a new location
         const prevStartNode = grid[START_NODE_ROW][START_NODE_COL];
         START_NODE_ROW = row;
         START_NODE_COL = col;
@@ -98,6 +106,7 @@ export default class PathfindingVisualizer extends Component {
     }
 
     moveFinish(grid, row, col) {
+        // Moves the finish node to a new location
         const prevFinishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
         FINISH_NODE_ROW = row;
         FINISH_NODE_COL = col;
@@ -112,6 +121,7 @@ export default class PathfindingVisualizer extends Component {
     }
 
     toggleWall(grid, row, col) {
+        // Toggles the wall attribute of a node
         const node = grid[row][col];
         node.isWall = !node.isWall;
         document.getElementById(`node-${row}-${col}`).className =
@@ -119,9 +129,9 @@ export default class PathfindingVisualizer extends Component {
     }
 
     clearPath() {
-        // Prevents the user from clearing path while an algorithm is in progress
-        if (this.state.algorithmInProgress) return false;
+        if (this.state.algorithmInProgress) return false; // Prevents the user from clearing path while an algorithm is in progress
         
+        // Clears the grid of all path nodes
         const { grid } = this.state;
         this.clearPathHelper(grid);
         this.setState({algorithmVisualized: false});
@@ -129,6 +139,7 @@ export default class PathfindingVisualizer extends Component {
     }
 
     clearPathHelper(grid) {
+        // Clears the grid of all path nodes
         for (const row of grid) {
             for (const node of row) {
                 document.getElementById(`node-${node.row}-${node.col}`).className =
@@ -142,6 +153,8 @@ export default class PathfindingVisualizer extends Component {
 
     clearAll() {
         if (!this.clearPath()) return false; // If clearPath failed, then an algorithm is already in progress
+
+        // Clears the grid of all walls and paths
         const newGrid = clearWalls(this.state.grid);
         this.setState({grid: newGrid, algorithmVisualized: false});
         return true;
@@ -149,13 +162,12 @@ export default class PathfindingVisualizer extends Component {
 
     async visualizeAlgorithm(algorithm) {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
-        this.setState({algorithmInProgress: true});
 
-        const { grid } = this.state;
+        // Visualizes the selected algorithm (with animation)
+        this.setState({algorithmInProgress: true});
+        const { grid, delay, heuristic } = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-        const { delay } = this.state;
-        const { heuristic } = this.state;
 
         if (algorithm === "DFS") {
             await visualDFS(grid, startNode, finishNode, delay);
@@ -171,7 +183,8 @@ export default class PathfindingVisualizer extends Component {
 
     visualizeAlgorithmNoAnimation(algorithm, heuristic) {
         if (!this.clearPath()) return; // If clearPath failed, then an algorithm is already in progress
-
+        
+        // Visualizes the selected algorithm (without animation)
         const { grid } = this.state;
         const startNode = grid[START_NODE_ROW][START_NODE_COL];
         const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
@@ -190,8 +203,9 @@ export default class PathfindingVisualizer extends Component {
 
     async generateMaze(maze) {
         if (!this.clearAll()) return; // If clearAll failed, then an algorithm is already in progress
-        this.setState({algorithmInProgress: true});
 
+        // Generates the selected maze type onto the grid
+        this.setState({algorithmInProgress: true});
         const { grid } = this.state;
 
         if (maze === "Random") {
@@ -204,12 +218,14 @@ export default class PathfindingVisualizer extends Component {
 
 
     handleAlgorithmChange() {
+        // Handles the change of the algorithm dropdown menu
         const newAlgorithm = document.getElementById("algorithm").value;
         this.setState({algorithm: newAlgorithm, algorithmInfo: this.configAlgorithmInfo(newAlgorithm), heuristic: "Manhattan"});
         if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(newAlgorithm, this.state.heuristic);
     }
 
     configAlgorithmInfo(algorithm) {
+        // Configures the algorithm info text based on the selected algorithm
         let algorithmInfo = "";
 
         if (algorithm === "") {
@@ -227,11 +243,13 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleSpeedChange() {
+        // Handles a change in selected speed
         const newSpeed = document.getElementById("speed").value;
         this.setState({delay: this.configDelay(newSpeed)});
     }
 
     configDelay(speed) {
+        // Configures the delay based on the selected speed
         let delay = 0;
 
         if (speed === "VerySlow") {
@@ -249,11 +267,13 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleMazeChange() {
+        // Handles a change in selected maze
         const newMaze = document.getElementById("maze").value;
         this.setState({maze: newMaze});
     }
 
     handleHeuristicChange() {
+        // Handles a change in selected heuristic for A* Search
         const newHeuristic = document.getElementById("heuristic").value;
         this.setState({heuristic: newHeuristic});
         if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm, newHeuristic);
@@ -330,13 +350,29 @@ export default class PathfindingVisualizer extends Component {
 
 
 const getInitialGrid = () => {
+    // Get the users screen size
     const width = window.innerWidth;
     const height = window.innerHeight;
 
     // Calculate the number of rows and columns based on the screen size
-    const numCols = Math.floor(width / 29) - 8;
-    const numRows = Math.floor(height / 29) - 8;
+    let numCols = Math.floor(width / 29) - 8;
+    numCols = numCols > 49 ? 49 : numCols;
+    numCols = numCols < 9 ? 9 : numCols;
 
+    let numRows = Math.floor(height / 29) - 8;
+    numRows = numRows > 29 ? 29 : numRows;
+
+    // Ensure that the grid is odd sized -> this is important for maze generation
+    numRows = numRows % 2 === 0 ? numRows - 1 : numRows;
+    numCols = numCols % 2 === 0 ? numCols - 1 : numCols;
+
+    // Set the start and finish nodes
+    START_NODE_ROW = Math.floor(numRows / 2);
+    START_NODE_COL = Math.floor(numCols / 4);
+    FINISH_NODE_ROW = Math.floor(numRows / 2);
+    FINISH_NODE_COL = Math.floor((numCols * 3) / 4);
+
+    // Create the grid
     const grid = [];
     for (let row = 0; row < numRows; row++) {
         const currentRow = [];
@@ -349,6 +385,7 @@ const getInitialGrid = () => {
 };
 
 const createNode = (col, row) => {
+    // Create a node object
     return {
         row,
         col,
@@ -362,6 +399,7 @@ const createNode = (col, row) => {
 };
 
 const clearWalls = (grid) => {
+    // Clear all walls from the grid
     const newGrid = grid.slice();
     for (const row of newGrid) {
         for (const node of row) {

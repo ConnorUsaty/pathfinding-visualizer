@@ -5,7 +5,7 @@ export const Header = () => {
 
     return (
         <header className="header">
-            <h1>Interactive Pathfinding Visualizer</h1>
+            <h1>Pathfinding Algorithm Visualizer</h1>
             <Legend />
         </header>
     );
