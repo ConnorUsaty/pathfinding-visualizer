@@ -26,7 +26,7 @@ export default class Menu extends Component {
             <select id="maze" onChange={() => onMazeChange()} disabled={algorithmInProgress} defaultValue={""}>
                 {maze === "" &&
                 <option value="" disabled>
-                    Select a maze...
+                    Select a Maze...
                 </option>}
 
                 <option value="RecursiveDivision">Recursive Division</option>
@@ -40,7 +40,7 @@ export default class Menu extends Component {
             <select id="algorithm" onChange={() => onAlgorithmChange()} disabled={algorithmInProgress} defaultValue={""}>
                 {algorithm === "" && 
                 <option value="" disabled>
-                    Select an algorithm...
+                    Select an Algorithm...
                 </option>}
 
                 <option value="A*">A* Search</option>
@@ -52,7 +52,7 @@ export default class Menu extends Component {
             <select id="speed" onChange={() => onSpeedChange()} disabled={algorithmInProgress} defaultValue={""}>
                 {delay === -1 && 
                 <option value="" disabled>
-                    Select a speed...
+                    Select a Speed...
                 </option>}
 
                 <option value="VeryFast">Very Fast</option>
@@ -88,7 +88,7 @@ export default class Menu extends Component {
             </button>
 
             <button onClick={() => toggleInstructionsModal()}>
-                How to use
+                How to Use
             </button>
         </div>
     );
