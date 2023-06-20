@@ -1,19 +1,19 @@
 # Pathfinding Algorithm Visualizer
 An interactive visualization tool for common pathfinding algorithms.
 
-## Live Site Link
-Directly access and use my visualization tool without any downloads <a href="https://connorusaty.github.io/pathfinding-visualizer/" target="_blank">here</a>.
-
-Note: The grid is generated on the initial page load based on the current window dimensions. If you wish to test the site's repsonsiveness please reload the page after shrinking or enlarging the window to regenerate the grid according to the new window dimensions.
-
 ## Technologies Used
-
 <p>
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
   <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" />
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
 </p>
+
+## Live Site Link
+Directly access and use my visualization tool without any downloads <a href="https://connorusaty.github.io/pathfinding-visualizer/" target="_blank">here</a>.
+
+## Video Demo
+https://youtu.be/V61U_hktB9I
 
 ## Features
 <ul>
