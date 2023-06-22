@@ -61,8 +61,9 @@ export default class PathfindingVisualizer extends Component {
             this.setState({movingStart: true});
         } else if (grid[row][col].isFinish) {
             this.setState({movingFinish: true});
-        } else if (!grid[row][col].isVisited) {
+        } else {
             this.toggleWall(grid, row, col);
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm, this.state.heuristic);
         }
     }
 
@@ -80,8 +81,9 @@ export default class PathfindingVisualizer extends Component {
         } else if (this.state.movingFinish && !node.isStart && !node.isWall) {
             this.moveFinish(grid, row, col);
             if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm, this.state.heuristic);
-        } else if (!node.isStart && !node.isFinish && !node.isVisited && !this.state.movingStart && !this.state.movingFinish) {
+        } else if (!node.isStart && !node.isFinish && !this.state.movingStart && !this.state.movingFinish) {
             this.toggleWall(grid, row, col);
+            if (this.state.algorithmVisualized) this.visualizeAlgorithmNoAnimation(this.state.algorithm, this.state.heuristic);
         }
     }
 
@@ -152,12 +154,27 @@ export default class PathfindingVisualizer extends Component {
     }
 
     clearAll() {
-        if (!this.clearPath()) return false; // If clearPath failed, then an algorithm is already in progress
-
-        // Clears the grid of all walls and paths
-        const newGrid = clearWalls(this.state.grid);
-        this.setState({grid: newGrid, algorithmVisualized: false});
+        if (this.state.algorithmInProgress) return false; // Prevents the user from clearing path while an algorithm is in progress
+        
+        // Clears the grid completely
+        const { grid } = this.state;
+        this.clearAllHelper(grid);
+        this.setState({algorithmVisualized: false});
         return true;
+    }
+
+    clearAllHelper(grid) {
+        // Clears the grid completely
+        for (const row of grid) {
+            for (const node of row) {
+                document.getElementById(`node-${node.row}-${node.col}`).className =
+                    `node ${node.isStart ? 'node-start' : node.isFinish ? 'node-finish' : ''}`;
+                node.isVisited = false;
+                node.isWall = false;
+                node.distance = Infinity;
+                node.prev = null;
+            }
+        }
     }
 
     async visualizeAlgorithm(algorithm) {
@@ -396,19 +413,4 @@ const createNode = (col, row) => {
         distance: Infinity,
         prev: null,
     };
-};
-
-const clearWalls = (grid) => {
-    // Clear all walls from the grid
-    const newGrid = grid.slice();
-    for (const row of newGrid) {
-        for (const node of row) {
-            const newNode = {
-                ...node,
-                isWall: false,
-            };
-            grid[node.row][node.col] = newNode;
-        }
-    }
-    return newGrid;
 };

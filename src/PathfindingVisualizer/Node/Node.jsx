@@ -20,12 +20,13 @@ export default class Node extends Component {
 
     return (
       <div id={`node-${row}-${col}`}
-        className={`node ${isWall ? "node-wall" : ""}`}
+        className={`node`}
         onMouseDown={() => onMouseDown(row, col)}
         onMouseEnter={() => onMouseEnter(row, col)}
         onMouseUp={() => onMouseUp()}>
           {isStart && (!movingStart || algorithmVisualized) && <div className="node-start"></div>}
           {isFinish && (!movingFinish || algorithmVisualized) && <div className="node-finish"></div>}
+          {isWall && <div className="node-wall"></div>}
       </div>
     );
   }
