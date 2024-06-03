@@ -360,6 +360,8 @@ export default class PathfindingVisualizer extends Component {
                         );
                     })}
                 </div>
+
+                <div className="w-full py-4 bg-gray-900 text-center text-white font-bold">&copy; Connor Usaty 2024</div>
             </div></>
         );
     }
